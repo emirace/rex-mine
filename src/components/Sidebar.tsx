@@ -32,7 +32,7 @@ function Sidebar() {
   return (
     <nav className=" overflow-y-auto hidden md:block scrollbar-hide h-full p-6 w-1/5 shadow  shadow-primary ">
       <ul className="">
-        {navbarLinks.map((link, index) => (
+        {navbarLinks.map((link) => (
           <li
             key={link.text}
             className="mb-3 text-base hover:font-medium transition-all duration-300 "

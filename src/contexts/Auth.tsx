@@ -47,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const fetchUserData = async (token: string) => {
+    console.log(token);
     return new Promise<any>((resolve) =>
       setTimeout(
         () => resolve({ name: "John Doe", email: "john.doe@example.com" }),

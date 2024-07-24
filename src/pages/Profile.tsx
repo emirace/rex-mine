@@ -10,8 +10,8 @@ interface Transaction {
 }
 
 const Profile: React.FC = () => {
-  const [balance, setBalance] = useState<number>(0); // Example balance
-  const [transactions, setTransactions] = useState<Transaction[]>([
+  const [balance] = useState<number>(0); // Example balance
+  const [transactions] = useState<Transaction[]>([
     {
       id: 1,
       date: "2024-07-20",

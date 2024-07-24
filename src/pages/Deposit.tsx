@@ -6,7 +6,7 @@ import DepositAddress from "../components/DepositAddress";
 const Deposit: React.FC = () => {
   const [amount, setAmount] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
-  const [address, setAddress] = useState("jdjdbkdjsskehfbrn3333een");
+  const [address] = useState("jdjdbkdjsskehfbrn3333een");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const MIN_DEPOSIT_AMOUNT = 10;

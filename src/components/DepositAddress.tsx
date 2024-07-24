@@ -16,7 +16,7 @@ const DepositAddress: React.FC<Props> = ({ address }) => {
           <div className="bg-white h-[178px] w-[178px] p-1 flex justify-center items-center ">
             <QRCode
               value={address}
-              style={{ heigt: "170px", width: "170px" }}
+              style={{ height: "170px", width: "170px" }}
             />
           </div>
           <div className="text-white text-sm bg-secondary p-2 rounded-lg">
