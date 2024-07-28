@@ -32,6 +32,7 @@ const Register: React.FC = () => {
     confirmPassword: "",
     captcha: "",
     terms: "",
+    errors: "",
   });
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const Register: React.FC = () => {
       confirmPassword: "",
       captcha: "",
       terms: "",
+      errors: "",
     };
 
     if (!fullName.trim()) {
@@ -87,17 +89,25 @@ const Register: React.FC = () => {
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
 
-    if (!validateForm()) {
-      return;
+      if (!validateForm()) {
+        return;
+      }
+
+      setLoading(true);
+
+      await register({ fullName, username, password, invitationCode: invite });
+      setLoading(false);
+      setShowModal(true);
+    } catch (error: any) {
+      setLoading(false);
+      setError((prev) => ({
+        ...prev,
+        errors: error?.response?.data?.message || error.messagr,
+      }));
     }
-
-    setLoading(true);
-
-    await register({ fullName, username, password, invitationCode: invite });
-    setLoading(false);
-    setShowModal(true);
   };
 
   return (

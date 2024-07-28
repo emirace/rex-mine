@@ -67,19 +67,19 @@ export const registerUser = async (req: Request, res: Response) => {
 
 // Login a user
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   try {
-    // Find the user by email
-    const user = await User.findOne({ email });
+    // Find the user by username
+    const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid username or password" });
     }
 
     // Check if the password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid username or password" });
     }
 
     // Generate a JWT token
@@ -159,8 +159,8 @@ export const getUser = async (req: AuthRequest, res: Response) => {
 // Create a new user
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
-    const newUser = new User({ name, email, password });
+    const { name, username, password } = req.body;
+    const newUser = new User({ name, username, password });
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {
@@ -172,10 +172,10 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password } = req.body;
+    const { name, username, password } = req.body;
     const user = await User.findByIdAndUpdate(
       id,
-      { name, email, password },
+      { name, username, password },
       { new: true }
     );
     if (user) {
