@@ -17,7 +17,7 @@ function App() {
       navigate("/transaction-code");
     }
   }, [user]);
-  console.log(user);
+
   if (loading) {
     return <div>Loading...</div>;
   }
