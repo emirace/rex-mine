@@ -10,15 +10,16 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("user", !loading && !user);
     if (!loading && !user) {
       navigate("/login");
     }
-    if (!loading && !user?.hasTransactionCode) {
+    if (!loading && user && !user?.hasTransactionCode) {
       navigate("/transaction-code");
     }
-  }, [user]);
+  }, [user, loading]);
 
-  if (loading) {
+  if (loading || !user) {
     return <div>Loading...</div>;
   }
 
