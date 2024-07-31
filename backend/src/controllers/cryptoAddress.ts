@@ -75,7 +75,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
           .lean(),
       ]);
 
-      console.log(cryptoAddress, transaction);
+      console.log(cryptoAddress, transaction, req.body.ipn_type);
 
       if (
         req.body.ipn_type === "deposit" &&
@@ -122,7 +122,10 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
         }
 
         // Execute promises array queries
-        await Promise.all(promises);
+        const result = await Promise.all(promises);
+        console.log(result);
+      } else {
+        console.log("check 3");
       }
 
       res.status(200).json({ success: true });
