@@ -40,7 +40,6 @@ export const getCryptoAddress = async (req: AuthRequest, res: Response) => {
 
 export const coinpaymentIpn = async (req: Request, res: Response) => {
   try {
-    console.log(req.body, req.headers.hmac);
     // Validate sent data
     callbackCheckPostCoinpaymentsData(req.headers, req.body);
 
@@ -75,6 +74,8 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
           .select("amount userId status")
           .lean(),
       ]);
+
+      console.log(cryptoAddress, transaction);
 
       if (
         req.body.ipn_type === "deposit" &&
