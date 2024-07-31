@@ -103,7 +103,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
             amount: amount,
             providerId: transactionId,
             type: "deposit",
-            user: cryptoAddress.userId._id,
+            userId: cryptoAddress.userId._id,
             status: "completed",
           }),
         ];
@@ -112,7 +112,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
         if (cryptoAddress.userId.invitedBy) {
           promises.push(
             User.findByIdAndUpdate(
-              cryptoAddress.user.invitedBy,
+              cryptoAddress.userId.invitedBy,
               {
                 $inc: { promotionalBalance: amount },
               },
