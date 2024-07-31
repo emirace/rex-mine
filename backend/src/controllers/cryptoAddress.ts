@@ -40,7 +40,7 @@ export const getCryptoAddress = async (req: AuthRequest, res: Response) => {
 
 export const coinpaymentIpn = async (req: Request, res: Response) => {
   try {
-    console.log(req.body);
+    console.log(req.body, req.headers.hmac);
     // Validate sent data
     callbackCheckPostCoinpaymentsData(req.headers, req.body);
 
