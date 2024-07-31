@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useUser } from "../contexts/Auth";
 function Navbar() {
   const location = useLocation();
-  const { logout } = useUser();
+  const { logout, user } = useUser();
 
   const notAllowedRoutes = ["/profile"];
   return (
@@ -14,6 +14,9 @@ function Navbar() {
           <img src="/images/logo.png" alt="logo" className="w-8" />
         </Link>
         <div className="flex items-center gap-3">
+          <div className="capitalize text-white font-medium ">
+            Welcome {user?.username}
+          </div>
           <BiSupport size={28} />
           {notAllowedRoutes.includes(location.pathname) && (
             <IoMdPower

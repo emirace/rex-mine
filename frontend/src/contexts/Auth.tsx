@@ -65,9 +65,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const currentUser = await getCurrentUser();
       console.log("hello2");
       setUser(currentUser);
-      setLoading(false);
     } catch (error) {
       console.error("Failed to fetch current user:", error);
+    } finally {
       setLoading(false);
     }
   };

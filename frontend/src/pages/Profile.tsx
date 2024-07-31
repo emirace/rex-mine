@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/Auth";
 
 interface Transaction {
   id: number;
@@ -11,31 +12,32 @@ interface Transaction {
 }
 
 const Profile: React.FC = () => {
-  const [balance] = useState<number>(0); // Example balance
+  const { user } = useUser();
   const navigate = useNavigate();
-  const [transactions] = useState<Transaction[]>([
-    {
-      id: 1,
-      date: "2024-07-20",
-      type: "Deposit",
-      amount: 100,
-      status: "Completed",
-    },
-    {
-      id: 2,
-      date: "2024-07-18",
-      type: "Withdrawal",
-      amount: 50,
-      status: "Completed",
-    },
-    {
-      id: 3,
-      date: "2024-07-15",
-      type: "Deposit",
-      amount: 200,
-      status: "Pending",
-    },
-  ]);
+  const [transactions] = useState<Transaction[]>([]);
+  //   [
+  //   {
+  //     id: 1,
+  //     date: "2024-07-20",
+  //     type: "Deposit",
+  //     amount: 100,
+  //     status: "Completed",
+  //   },
+  //   {
+  //     id: 2,
+  //     date: "2024-07-18",
+  //     type: "Withdrawal",
+  //     amount: 50,
+  //     status: "Completed",
+  //   },
+  //   {
+  //     id: 3,
+  //     date: "2024-07-15",
+  //     type: "Deposit",
+  //     amount: 200,
+  //     status: "Pending",
+  //   },
+  // ]
 
   return (
     <div className="max-w-2xl p-6">
@@ -44,10 +46,12 @@ const Profile: React.FC = () => {
       {/* Balance Card */}
       <div className="bg-gradient-to-r bg-opacity-70 from-primary to-[#103256] text-white p-6 rounded-lg shadow-md mb-8 w-full ">
         <h2 className="text-xl font-bold">Current Balance</h2>
-        <p className="text-3xl mt-4">{balance} TRX</p>
+        <p className="text-3xl mt-4">{user?.balance} TRX</p>
       </div>
       <div className="flex items-center justify-between rounded-full bg-secondary py-2 px-4 mb-8">
-        <div className="text-white text-lg">Promotion Balane: 0 TRX</div>
+        <div className="text-white text-lg">
+          Promotion Balane: {user?.promotionalBalance} TRX
+        </div>
         <button className=" bg-blue-600 text-white rounded-full p-2 px-4">
           CLAIM
         </button>

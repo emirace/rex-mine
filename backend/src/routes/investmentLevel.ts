@@ -11,7 +11,7 @@ import { auth } from "../middleware/auth";
 const router = express.Router();
 
 // Create a new investment level (only accessible by admins)
-router.post("/", auth(), createInvestmentLevel);
+router.post("/", auth("Admin"), createInvestmentLevel);
 
 // Get all investment levels
 router.get("/", getInvestmentLevels);

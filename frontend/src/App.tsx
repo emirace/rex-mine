@@ -4,13 +4,14 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import { useEffect } from "react";
 import { useUser } from "./contexts/Auth";
+import Loading from "./components/Loading";
 
 function App() {
   const { user, loading } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("user", !loading && !user);
+    console.log("user", loading, user, !loading && !user);
     if (!loading && !user) {
       navigate("/login");
     }
@@ -20,7 +21,11 @@ function App() {
   }, [user, loading]);
 
   if (loading || !user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="justify-center flex items-center h-screen bg-background ">
+        <Loading />
+      </div>
+    );
   }
 
   return (

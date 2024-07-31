@@ -7,6 +7,7 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  username: string;
   balance: number;
   miningBalance: number;
   role: string;

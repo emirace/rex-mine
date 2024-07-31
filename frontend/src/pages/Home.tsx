@@ -29,7 +29,6 @@ const Home: React.FC = () => {
   return (
     <div className="p-6 max-w-2xl">
       {/* Carousel */}
-
       <Carousel />
       <div className="mt-6 w-full ">
         <div className="flex justify-center items-center mb-2">
