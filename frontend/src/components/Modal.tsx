@@ -52,7 +52,7 @@ const Modal: React.FC<{
               <FaTimes />
             </button>
           )}
-          {children}
+          {modalOpen && children}
         </div>
       </div>
     </>

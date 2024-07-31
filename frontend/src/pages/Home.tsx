@@ -105,11 +105,22 @@ const Home: React.FC = () => {
       {/* Partners Section */}
       <div className="w-full  mt-8">
         <h2 className="text-white text-xl font-bold mb-4 ">Our Partners</h2>
-        <div className="flex  items-center flex-wrap gap-4">
-          <img src="/images/binance.png" className="h-8 rounded bg-white p-1" />
+        <div className="flex  items-center justify-between flex-wrap gap-4">
+          <img
+            src="/images/binance.png"
+            className="h-8 rounded min-w-36 bg-white p-1"
+          />
           <img
             src="/images/stormgain.jpg"
-            className="h-8 rounded bg-white p-1"
+            className="h-8 rounded min-w-36 bg-white p-1"
+          />
+          <img
+            src="/images/bybit.jpg"
+            className="h-8 rounded min-w-36 bg-white p-1"
+          />
+          <img
+            src="/images/coinmarketcap.png"
+            className="h-8 rounded min-w-36 bg-white p-1"
           />
         </div>
       </div>
