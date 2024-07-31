@@ -18,7 +18,7 @@ export const generateCryptoAddress = async (): Promise<any> => {
     const body = {
       cmd: "get_callback_address",
       currency: "ltc",
-      ipn_url: `${process.env.BACKEND_URL}/crypto/callback`,
+      ipn_url: `${process.env.BACKEND_URL}/api/crypto/callback`,
       key,
       version: 1,
       format: "json",
