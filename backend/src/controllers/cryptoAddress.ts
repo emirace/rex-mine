@@ -68,8 +68,8 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
       // Get crypto address and crypto transaction from database
       const [cryptoAddress, transaction]: any = await Promise.all([
         CryptoAddress.findOne({ address: req.body.address })
-          .select("address user")
-          .populate({ path: "user", select: "invitedBy" })
+          .select("address userId")
+          .populate({ path: "userId", select: "invitedBy" })
           .lean(),
         Transaction.findOne({ providerId: transactionId })
           .select("amount userId status")
@@ -82,12 +82,10 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
         !transaction &&
         req.body.status >= 100
       ) {
-        // Get transaction amount in fiat
-        const amountFiat = Math.floor(req.body.fiat_amount * 1000);
         console.log("check 2");
 
-        // Get transaction amount in robux
-        const amount = Math.floor((amountFiat / 3) * 1000);
+        // Get transaction amount
+        const amount = req.body.amount;
 
         // Create an array of promises for database operations
         const promises: any = [
