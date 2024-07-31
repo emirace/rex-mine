@@ -40,6 +40,7 @@ export const getCryptoAddress = async (req: AuthRequest, res: Response) => {
 
 export const coinpaymentIpn = async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     // Validate sent data
     callbackCheckPostCoinpaymentsData(req.headers, req.body);
 
@@ -62,7 +63,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
 
     // Add transactions id to crypto block array
     callbackBlockTransactionCrypto.push(transactionId.toString());
-
+    console.log("check 1");
     try {
       // Get crypto address and crypto transaction from database
       const [cryptoAddress, transaction]: any = await Promise.all([
@@ -83,6 +84,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
       ) {
         // Get transaction amount in fiat
         const amountFiat = Math.floor(req.body.fiat_amount * 1000);
+        console.log("check 2");
 
         // Get transaction amount in robux
         const amount = Math.floor((amountFiat / 3) * 1000);
