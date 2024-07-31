@@ -97,6 +97,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       setUser(currentUser);
     } catch (error) {
       console.error("Failed to login:", error);
+      throw error;
     }
   };
 
@@ -110,6 +111,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       await registerUser(data);
     } catch (error) {
       console.error("Failed to register:", error);
+      throw error;
     }
   };
 

@@ -179,6 +179,10 @@ const Register: React.FC = () => {
               <div className="text-red-500 text-sm ml-2">{error.terms}</div>
             )}
           </div>
+
+          {error.errors && (
+            <div className="text-red-500 text-sm ml-2">{error.errors}</div>
+          )}
           <Button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold"

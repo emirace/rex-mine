@@ -23,6 +23,7 @@ const Login: React.FC = () => {
     username: "",
     password: "",
     captcha: "",
+    error: "",
   });
 
   useEffect(() => {
@@ -41,6 +42,7 @@ const Login: React.FC = () => {
       username: "",
       password: "",
       captcha: "",
+      error: "",
     };
 
     if (!username.trim()) {
@@ -63,16 +65,24 @@ const Login: React.FC = () => {
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
 
-    if (!validateForm()) {
-      return;
+      if (!validateForm()) {
+        return;
+      }
+
+      setLoading(true);
+
+      await login({ username, password });
+      setLoading(false);
+    } catch (error: any) {
+      setError((prev) => ({
+        ...prev,
+        error: error?.response?.data?.message || error.message,
+      }));
+      setLoading(false);
     }
-
-    setLoading(true);
-
-    await login({ username, password });
-    setLoading(false);
   };
 
   return (
@@ -107,6 +117,9 @@ const Login: React.FC = () => {
             <LoadCanvasTemplate />
           </div>
 
+          {error.error && (
+            <div className="text-red-500 text-sm ">{error.error}</div>
+          )}
           <Button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
