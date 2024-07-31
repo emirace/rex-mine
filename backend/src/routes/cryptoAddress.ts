@@ -7,6 +7,6 @@ import { coinpaymentIpn, getCryptoAddress } from "../controllers/cryptoAddress";
 const router = express.Router();
 
 router.get("/address", auth(), getCryptoAddress);
-router.get("/callback", auth(), coinpaymentIpn);
+router.get("/callback", coinpaymentIpn);
 
 export default router;
