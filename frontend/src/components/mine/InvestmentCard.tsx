@@ -56,7 +56,7 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
         </div>
       </div>
       <p className="text-white text-sm mt-2">
-        <strong>Amount:</strong> ${amount.toFixed(2)}
+        <strong>Amount:</strong> TRX{amount.toFixed(2)}
       </p>
       <p className="text-white text-sm">
         <strong>Start Date:</strong> {new Date(startDate).toLocaleDateString()}
