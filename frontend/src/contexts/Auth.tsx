@@ -17,6 +17,8 @@ import {
   updateUser,
   deleteUser,
   createTransactionCode,
+  addReferrer,
+  claimPromotionBalance,
 } from "../services/user";
 
 interface UserContextType {
@@ -32,6 +34,8 @@ interface UserContextType {
     password: string;
     invitationCode: string;
   }) => Promise<void>;
+  addReffererCode: (data: { referralCode: string }) => Promise<void>;
+  claimPromotion: () => Promise<void>;
   update: (id: string, data: Partial<User>) => Promise<void>;
   remove: (id: string) => Promise<void>;
   logout: () => void;
@@ -65,10 +69,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const currentUser = await getCurrentUser();
       console.log("hello2");
       setUser(currentUser);
-    } catch (error) {
-      console.error("Failed to fetch current user:", error);
-    } finally {
       setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Failed to fetch current user:", error);
     }
   };
 
@@ -124,6 +128,24 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
+  const addReffererCode = async (data: { referralCode: string }) => {
+    try {
+      const res = await addReferrer(data);
+      setUser((prev) => ({ ...prev, invitedBy: res } as User | null));
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const claimPromotion = async () => {
+    try {
+      await claimPromotionBalance();
+      setUser((prev) => ({ ...prev, promotionalBalance: 0 } as User | null));
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const update = async (id: string, data: Partial<User>) => {
     try {
       const updatedUser = await updateUser(id, data);
@@ -156,8 +178,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
       fetchCurrentUser();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   return (
@@ -170,6 +193,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         fetchUsers,
         fetchUserById,
         login,
+        addReffererCode,
+        claimPromotion,
         register,
         update,
         remove,

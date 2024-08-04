@@ -17,7 +17,13 @@ function Navbar() {
           <div className="capitalize text-white font-medium ">
             Welcome {user?.username}
           </div>
-          <BiSupport size={28} />
+          <a
+            href="https://t.me/rex_mine_agent" // Replace with your Telegram channel URL
+            target="_blank" // Opens the link in a new tab
+            rel="noopener noreferrer" // For security purposes
+          >
+            <BiSupport size={28} className="cursor-pointer text-white" />
+          </a>
           {notAllowedRoutes.includes(location.pathname) && (
             <IoMdPower
               onClick={() => logout()}

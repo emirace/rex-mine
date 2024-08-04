@@ -13,18 +13,27 @@ export interface UserInvestment extends Document {
 }
 
 // Define the UserInvestment schema
-const UserInvestmentSchema: Schema = new Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  investmentLevel: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "InvestmentLevel",
-    required: true,
+const UserInvestmentSchema: Schema = new Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    investmentLevel: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InvestmentLevel",
+      required: true,
+    },
+    amount: { type: Number, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true }, // Include end date
+    nextPaybackDate: { type: Date, required: true },
   },
-  amount: { type: Number, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true }, // Include end date
-  nextPaybackDate: { type: Date, required: true },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Export the UserInvestment model
 export default mongoose.model<UserInvestment>(

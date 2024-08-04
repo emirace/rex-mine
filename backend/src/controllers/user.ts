@@ -240,3 +240,80 @@ export const getUserHourlyReturnRate = async (
     res.status(500).json({ error: "Error fetching hourly return rate" });
   }
 };
+
+// Controller to claim promotional balance
+export const claimPromotionBalance = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    // Assume req.user contains the authenticated user's ID
+    const userId = req.user?._id;
+
+    // Find the user
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the user has any promotional balance
+    if (user.promotionalBalance <= 0) {
+      return res
+        .status(400)
+        .json({ message: "No promotional balance to claim" });
+    }
+
+    // Transfer promotional balance to main balance
+    user.balance += user.promotionalBalance;
+    user.promotionalBalance = 0; // Reset promotional balance
+
+    // Save the updated user
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Promotional balance claimed successfully" });
+  } catch (error) {
+    console.error("Error claiming promotional balance:", error);
+    return res
+      .status(500)
+      .json({ error: "Error claiming promotional balance" });
+  }
+};
+
+export const addReferrer = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const { referralCode } = req.body;
+
+    // Find the user
+    const user: any = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the user already has a referrer
+    if (user.invitedBy) {
+      return res.status(400).json({ message: "Referrer already added" });
+    }
+
+    // Find the referrer by referral code
+    const referrer = await User.findOne({ referralCode });
+    if (!referrer) {
+      return res.status(404).json({ message: "Invalid referrer code " });
+    }
+
+    // Update the user's invitedBy field
+    user.invitedBy = referrer._id;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Referrer added successfully",
+      invitedBy: user.invitedBy,
+    });
+  } catch (error) {
+    console.error("Error adding referrer:", error);
+    return res.status(500).json({ error: "Error adding referrer" });
+  }
+};

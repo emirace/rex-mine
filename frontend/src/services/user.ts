@@ -106,6 +106,31 @@ export const createTransactionCode = async (data: {
   }
 };
 
+export const addReferrer = async (data: {
+  referralCode: string;
+}): Promise<string> => {
+  try {
+    const res = await api.post<{ invitedBy: string }>(
+      "/users/add-referrer",
+      data
+    );
+    return res.data.invitedBy;
+  } catch (error) {
+    console.error("Error adding refferer:", error);
+    throw error;
+  }
+};
+
+export const claimPromotionBalance = async (): Promise<boolean> => {
+  try {
+    await api.post<string>("/users/claim-promotion", {});
+    return true;
+  } catch (error) {
+    console.error("Error claimimg promotion:", error);
+    throw error;
+  }
+};
+
 export const getHourlyReturnRate = async (): Promise<number> => {
   try {
     const response = await api.get<{ hourlyReturnRate: number }>(

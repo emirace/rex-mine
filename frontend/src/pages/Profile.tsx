@@ -2,42 +2,41 @@ import React, { useState } from "react";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/Auth";
-
-interface Transaction {
-  id: number;
-  date: string;
-  type: "Deposit" | "Withdrawal";
-  amount: number;
-  status: "Completed" | "Pending" | "Failed";
-}
+import { useTransaction } from "../contexts/Transaction";
+import moment from "moment";
+import { ImSpinner9 } from "react-icons/im";
 
 const Profile: React.FC = () => {
-  const { user } = useUser();
+  const { user, claimPromotion } = useUser();
+  const { transactions, fetchUserTransactions } = useTransaction();
   const navigate = useNavigate();
-  const [transactions] = useState<Transaction[]>([]);
-  //   [
-  //   {
-  //     id: 1,
-  //     date: "2024-07-20",
-  //     type: "Deposit",
-  //     amount: 100,
-  //     status: "Completed",
-  //   },
-  //   {
-  //     id: 2,
-  //     date: "2024-07-18",
-  //     type: "Withdrawal",
-  //     amount: 50,
-  //     status: "Completed",
-  //   },
-  //   {
-  //     id: 3,
-  //     date: "2024-07-15",
-  //     type: "Deposit",
-  //     amount: 200,
-  //     status: "Pending",
-  //   },
-  // ]
+  const [loading, setLoading] = useState(false);
+  const [loadingPromotion, setLoadingPromotion] = useState(false);
+  const [error, setError] = useState("");
+
+  const handlefetchTransaction = async () => {
+    try {
+      setLoading(true);
+      await fetchUserTransactions();
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const handleClaimPromotion = async () => {
+    setError("");
+    try {
+      setLoadingPromotion(true);
+      await claimPromotion();
+      alert("Balance claimed successfully");
+    } catch (error: any) {
+      setError(error?.response?.data?.message || error.message);
+    } finally {
+      setLoadingPromotion(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl p-6">
@@ -48,17 +47,26 @@ const Profile: React.FC = () => {
         <h2 className="text-xl font-bold">Current Balance</h2>
         <p className="text-3xl mt-4">{user?.balance} TRX</p>
       </div>
-      <div className="flex items-center justify-between rounded-full bg-secondary py-2 px-4 mb-8">
+      <div className="flex items-center justify-between rounded-full bg-secondary py-2 px-4 ">
         <div className="text-white text-lg">
           Promotion Balane: {user?.promotionalBalance} TRX
         </div>
-        <button className=" bg-blue-600 text-white rounded-full p-2 px-4">
-          CLAIM
+        <button
+          disabled={loadingPromotion}
+          onClick={handleClaimPromotion}
+          className=" bg-blue-600 text-xs text-white rounded-full p-1 px-2"
+        >
+          {loadingPromotion ? "Claiming..." : "CLAIM"}
         </button>
       </div>
+      {error ? (
+        <div className="text-xs text-red-500">{error}</div>
+      ) : (
+        <div className="h-4" />
+      )}
 
       {/* Deposit and Withdrawal Buttons */}
-      <div className="flex w-full space-x-4 mb-8">
+      <div className="flex w-full space-x-4 my-8">
         <Button
           onClick={() => navigate("/deposit")}
           className="bg-primary w-full text-white font-bold py-2 px-4 transition duration-300"
@@ -75,30 +83,42 @@ const Profile: React.FC = () => {
 
       {/* Transaction History */}
       <div className="w-full">
-        <h2 className="text-white text-xl font-bold mb-4">
-          Transaction History
-        </h2>
+        <div className="w-full flex justify-between items-center">
+          <h2 className="text-white text-xl font-bold mb-4">
+            Transaction History
+          </h2>
+          <ImSpinner9
+            onClick={handlefetchTransaction}
+            className={loading ? `animate-spin mr-4` : "mr-4"}
+            size={20}
+            color="white"
+          />
+        </div>
         <div className="bg-secondary rounded-lg p-4 text-white shadow-md">
           {transactions.length > 0 ? (
             <ul className="space-y-4">
               {transactions.map((transaction) => (
                 <li
-                  key={transaction.id}
+                  key={transaction._id}
                   className="flex justify-between items-center border-b border-gray-600 pb-2"
                 >
                   <div>
-                    <p className="font-semibold">{transaction.type}</p>
-                    <p className="text-sm text-gray-400">{transaction.date}</p>
+                    <p className="font-semibold capitalize">
+                      {transaction.type}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {moment(transaction.createdAt).format("")}
+                    </p>
                   </div>
                   <div>
                     <p
                       className={`${
-                        transaction.type === "Deposit"
-                          ? "text-green-500"
-                          : "text-red-500"
+                        transaction.type === "Withdrawal"
+                          ? "text-red-500"
+                          : "text-green-500"
                       } font-semibold`}
                     >
-                      {transaction.type === "Deposit" ? "+" : "-"}
+                      {transaction.type === "Withdrawal" ? "-" : "+"}
                       {transaction.amount} TRX
                     </p>
                     <p className="text-sm text-gray-400">

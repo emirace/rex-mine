@@ -20,7 +20,7 @@ function App() {
     }
   }, [user, loading]);
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="justify-center flex items-center h-screen bg-background ">
         <Loading />

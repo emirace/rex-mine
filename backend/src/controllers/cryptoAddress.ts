@@ -68,7 +68,14 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
       const [cryptoAddress, transaction]: any = await Promise.all([
         CryptoAddress.findOne({ address: req.body.address })
           .select("address userId")
-          .populate({ path: "userId", select: "invitedBy" })
+          .populate({
+            path: "userId",
+            select: "invitedBy",
+            populate: {
+              path: "invitedBy",
+              select: "invitedBy",
+            },
+          })
           .lean(),
         Transaction.findOne({ providerId: transactionId })
           .select("amount userId status")
@@ -102,9 +109,9 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
           Transaction.create({
             amount: amount,
             providerId: transactionId,
-            type: "deposit",
+            type: "Deposit",
             userId: cryptoAddress.userId._id,
-            status: "completed",
+            status: "Completed",
           }),
         ];
 
@@ -112,13 +119,24 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
         if (cryptoAddress.userId.invitedBy) {
           promises.push(
             User.findByIdAndUpdate(
-              cryptoAddress.userId.invitedBy,
+              cryptoAddress.userId.invitedBy._id,
               {
-                $inc: { promotionalBalance: amount },
+                $inc: { promotionalBalance: amount * (7 / 100) },
               },
               {}
             )
           );
+          if (cryptoAddress.userId.invitedBy.invitedBy) {
+            promises.push(
+              User.findByIdAndUpdate(
+                cryptoAddress.userId.invitedBy.invitedBy,
+                {
+                  $inc: { promotionalBalance: amount * (3 / 100) },
+                },
+                {}
+              )
+            );
+          }
         }
 
         // Execute promises array queries

@@ -7,10 +7,19 @@ export interface CryptoAddress extends Document {
 }
 
 // Define the CryptoAddress schema
-const cryptoAddressSchema: Schema = new Schema({
-  address: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-});
+const cryptoAddressSchema: Schema = new Schema(
+  {
+    address: { type: String, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Export the CryptoAddress model
 export default mongoose.model<CryptoAddress>(

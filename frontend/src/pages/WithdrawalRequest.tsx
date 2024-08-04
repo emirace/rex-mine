@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
+import { useUser } from "../contexts/Auth";
+import { withdrawal } from "../services/withdrawal";
 
 const WithdrawalRequest: React.FC = () => {
+  const { user } = useUser();
   const [amount, setAmount] = useState<string>("");
+  const [loading, setLoading] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
-  const userBalance = 500; // Example balance for validation
 
-  const handleWithdrawal = (e: React.FormEvent) => {
+  const handleWithdrawal = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountValue = parseFloat(amount);
 
@@ -18,7 +21,7 @@ const WithdrawalRequest: React.FC = () => {
       return;
     }
 
-    if (amountValue > userBalance) {
+    if (amountValue > (user?.balance ? user?.balance : 0)) {
       setErrorMessage("Insufficient balance.");
       return;
     }
@@ -32,9 +35,16 @@ const WithdrawalRequest: React.FC = () => {
       setErrorMessage("Please enter a valid TRX wallet address.");
       return;
     }
-
-    setErrorMessage(""); // Clear any existing error messages
-    setShowModal(true);
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      await withdrawal({ amount: amountValue, cryptoAddress: walletAddress });
+      setShowModal(true);
+      setLoading(false);
+    } catch (error: any) {
+      setErrorMessage(error?.response?.data?.message || error.message);
+      setLoading(false);
+    }
   };
 
   const isValidTRXAddress = (address: string): boolean => {
@@ -58,7 +68,7 @@ const WithdrawalRequest: React.FC = () => {
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Enter amount"
             className="bg-secondary rounded-full p-4 text-white placeholder-gray-400 w-full"
-            min="1"
+            // min="1"
             required
           />
         </div>
@@ -83,7 +93,8 @@ const WithdrawalRequest: React.FC = () => {
         <Button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-          disabled={!amount || !walletAddress}
+          disabled={!amount || !walletAddress || loading}
+          loading={loading}
         >
           Submit Withdrawal
         </Button>

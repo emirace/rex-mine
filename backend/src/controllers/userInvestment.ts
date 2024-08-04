@@ -3,6 +3,7 @@ import InvestmentLevel from "../models/investmentLevel";
 import UserInvestment from "../models/userInvestment";
 import User from "../models/user";
 import { AuthRequest } from "../middleware/auth";
+import Transaction from "../models/transaction";
 
 // User invests in a plan
 export const invest = async (req: AuthRequest, res: Response) => {
@@ -38,12 +39,23 @@ export const invest = async (req: AuthRequest, res: Response) => {
     user.balance -= amount;
     await user.save();
 
+    const transaction = new Transaction({
+      amount: amount,
+      type: "Deposit",
+      userId,
+      status: "Completed",
+    });
+
+    await transaction.save();
+
     // Calculate start date, end date, and next payback date
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + level.validDays); // Set the end date
+    endDate.setDate(
+      endDate.getDate() + level.validDays + level.paybackCycleDays
+    ); // Set the end date
     const nextPaybackDate = new Date(startDate);
-    nextPaybackDate.setDate(nextPaybackDate.getDate() + level.paybackCycleDays);
+    nextPaybackDate.setDate(nextPaybackDate.getDate() + 1);
 
     // Create a new user investment
     const userInvestment = new UserInvestment({
@@ -89,7 +101,7 @@ export const processInvestments = async () => {
 
       // Update next payback date
       investment.nextPaybackDate.setDate(
-        investment.nextPaybackDate.getDate() + level.paybackCycleDays
+        investment.nextPaybackDate.getDate() + 1
       );
       await investment.save();
     }

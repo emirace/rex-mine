@@ -6,10 +6,12 @@ import { BiTransfer } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
 import Carousel from "../components/Caroisel";
 import { getHourlyReturnRate } from "../services/user";
+import { ImArrowDown } from "react-icons/im";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [hourlyRate, setHourlyRate] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getHourlyReturn();
@@ -17,12 +19,15 @@ const Home: React.FC = () => {
 
   const getHourlyReturn = async () => {
     try {
+      setLoading(true);
       const rate = await getHourlyReturnRate();
       console.log(rate);
       setHourlyRate(rate);
     } catch (error) {
       console.log(error);
       setHourlyRate(0);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,18 +37,26 @@ const Home: React.FC = () => {
       <Carousel />
       <div className="mt-6 w-full ">
         <div className="flex justify-center items-center mb-2">
-          <div
-            className="flex mb-4 bg-secondary rounded-full px-6 p-3 items-center gap-2"
-            onClick={getHourlyReturn}
-          >
-            <span className="text-white opacity-80">Speed :</span>
-            <span className="text-white font-bold">0 TRX/h</span>
-          </div>
+          {loading ? (
+            <div className="bg-secondary h-12 rounded-full w-52 mb-4 animate-pulse" />
+          ) : (
+            <div
+              className="flex mb-4 bg-secondary rounded-full px-6 p-3 items-center gap-2"
+              onClick={getHourlyReturn}
+            >
+              <span className="text-white opacity-80">Speed :</span>
+              <span className="text-white font-bold">{hourlyRate} TRX/h</span>
+            </div>
+          )}
         </div>
         <div onClick={() => navigate("/mine")} className="relative mb-6">
           <div className="absolute inset-0 flex z-10 justify-center items-center">
-            {hourlyRate ? (
-              <div className="animate-bounce"></div>
+            {loading ? (
+              <div />
+            ) : hourlyRate ? (
+              <div className="animate-bounce">
+                <ImArrowDown color={"white"} size={24} />
+              </div>
             ) : (
               <span className="text-white text-xs">Tap To Start Mining</span>
             )}
@@ -54,14 +67,18 @@ const Home: React.FC = () => {
         </div>
 
         <div className="flex justify-center items-center mb-4">
-          <div className="text-center mb-4 bg-secondary rounded-full px-4 py-2">
-            <span className="text-white opacity-80">Status: </span>
-            {hourlyRate ? (
-              <span className="text-green-500 font-bold">Active</span>
-            ) : (
-              <span className="text-red-500 font-bold">Inactive</span>
-            )}
-          </div>
+          {loading ? (
+            <div className="bg-secondary h-10 rounded-full w-32 mb-4 animate-pulse" />
+          ) : (
+            <div className="text-center mb-4 bg-secondary rounded-full px-4 py-2">
+              <span className="text-white opacity-80">Status: </span>
+              {hourlyRate ? (
+                <span className="text-green-500 font-bold">Active</span>
+              ) : (
+                <span className="text-red-500 font-bold">Inactive</span>
+              )}
+            </div>
+          )}
         </div>
 
         <button

@@ -3,7 +3,7 @@ import api from "./api";
 export interface UserInvestment {
   _id: string;
   userId: string;
-  investmentLevel: string;
+  investmentLevel: any;
   amount: number;
   startDate: Date;
   endDate: Date; // End date for the investment

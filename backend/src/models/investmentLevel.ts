@@ -11,14 +11,19 @@ export interface InvestmentLevel extends Document {
 }
 
 // Define the InvestmentLevel schema
-const InvestmentLevelSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  percentage: { type: Number, required: true },
-  minAmount: { type: Number, required: true },
-  maxAmount: { type: Number, required: true },
-  validDays: { type: Number, required: true },
-  paybackCycleDays: { type: Number, required: true },
-});
+const InvestmentLevelSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true },
+    percentage: { type: Number, required: true },
+    minAmount: { type: Number, required: true },
+    maxAmount: { type: Number, required: true },
+    validDays: { type: Number, required: true },
+    paybackCycleDays: { type: Number, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Export the InvestmentLevel model
 export default mongoose.model<InvestmentLevel>(

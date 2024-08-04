@@ -1,22 +1,91 @@
-import React from "react";
+// src/components/Invite.tsx
+
+import React, { useState } from "react";
 import { FaFacebook, FaRegCopy, FaTelegram, FaXTwitter } from "react-icons/fa6";
 import { IoMdArrowForward } from "react-icons/io";
 import { IoLogoWhatsapp } from "react-icons/io5";
 import { LuShare2 } from "react-icons/lu";
 import { useUser } from "../contexts/Auth";
+import { ImSpinner9 } from "react-icons/im";
 
 const Invite: React.FC = () => {
-  const { user } = useUser();
+  const { user, addReffererCode } = useUser();
+  const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+
+  const shareText = `Join me and get rewards using my referral code: ${user?.referralCode}`;
+  const website = "https://www.rex-mine.com";
+  // Share on Facebook
+  const shareOnFacebook = () => {
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      website // Replace with your site URL
+    )}&quote=${encodeURIComponent(shareText)}`;
+    window.open(facebookShareUrl, "_blank");
+  };
+
+  // Share on Telegram
+  const shareOnTelegram = () => {
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      website // Replace with your site URL
+    )}&text=${encodeURIComponent(shareText)}`;
+    window.open(telegramShareUrl, "_blank");
+  };
+
+  // Share on WhatsApp
+  const shareOnWhatsApp = () => {
+    const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(
+      shareText + " " + website // Replace with your site URL
+    )}`;
+    window.open(whatsappShareUrl, "_blank");
+  };
+
+  // Share on Twitter
+  const shareOnTwitter = () => {
+    const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      shareText
+    )}&url=${encodeURIComponent(website)}`; // Replace with your site URL
+    window.open(twitterShareUrl, "_blank");
+  };
+
+  // Generic share (for mobile devices with Web Share API)
+  const genericShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Join and Earn Rewards!",
+          text: shareText,
+          url: website, // Replace with your site URL
+        });
+      } catch (error) {
+        console.error("Error sharing", error);
+      }
+    } else {
+      alert("Web Share API is not supported in your browser.");
+    }
+  };
+
+  const handleAddRefferer = async () => {
+    if (!code) {
+      setError("Enter referral code");
+      return;
+    }
+    setError("");
+    try {
+      setLoading(true);
+      await addReffererCode({ referralCode: code });
+      alert("Referral added successfully");
+    } catch (error: any) {
+      setError(error?.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col ">
       <div className="p-6 h-full w-full max-w-2xl text-white mb-16">
         <div className="flex items-center mb-8 gap-5">
-          {/* <IoArrowBackSharp
-            color="white"
-            size={28}
-            onClick={() => navigate(-1)}
-          /> */}
           <h1 className="text-2xl font-bold  text-center">Refer & Get Coin</h1>
         </div>
         <p className="font-medium text-xl ">Invite And Get Coin</p>
@@ -24,7 +93,7 @@ const Invite: React.FC = () => {
         <div className="bg-secondary rounded-full p-4 flex justify-between items-center">
           <span className="text-white">{user?.referralCode}</span>
           <FaRegCopy
-            className="text-white"
+            className="text-white cursor-pointer"
             onClick={() =>
               navigator.clipboard.writeText(user?.referralCode || "")
             }
@@ -33,43 +102,54 @@ const Invite: React.FC = () => {
         </div>
         <div className="py-6 text-center">Or</div>
         <div className="flex justify-around items-center mb-4 ">
-          <button className="bg-secondary  rounded-full p-3 mx-1">
+          <button
+            className="bg-secondary  rounded-full p-3 mx-1"
+            onClick={shareOnFacebook}
+          >
             <FaFacebook
               className="text-blue-600 bg-white rounded-full"
               size={28}
             />
           </button>
-          <button className="bg-secondary  rounded-full p-3 mx-1">
+          <button
+            className="bg-secondary  rounded-full p-3 mx-1"
+            onClick={shareOnTelegram}
+          >
             <FaTelegram
               className="text-blue-400 bg-white rounded-full"
               size={28}
             />
           </button>
-          <button className="bg-secondary  rounded-full p-3 mx-1">
+          <button
+            className="bg-secondary  rounded-full p-3 mx-1"
+            onClick={shareOnWhatsApp}
+          >
             <IoLogoWhatsapp className="text-green-400" size={28} />
           </button>
-          <button className="bg-secondary text-white rounded-full p-3 mx-1">
+          <button
+            className="bg-secondary text-white rounded-full p-3 mx-1"
+            onClick={shareOnTwitter}
+          >
             <FaXTwitter size={28} />
           </button>
-          <button className="bg-secondary text-white rounded-full p-3 mx-1">
+          <button
+            className="bg-secondary text-white rounded-full p-3 mx-1"
+            onClick={genericShare}
+          >
             <LuShare2 size={28} />
           </button>
         </div>
         <div className="my-10 bg-secondary p-6 rounded-lg">
           <div className="flex justify-between">
-            <span>10 Referrals</span>
-            <span>150 TRX</span>
+            <span>1st Level </span>
+            <span>7%</span>
           </div>
           <div className="flex justify-between">
-            <span>20 Referrals</span>
-            <span>500 TRX</span>
-          </div>
-          <div className="flex justify-between">
-            <span>30 Referrals</span>
-            <span>2000 TRX</span>
+            <span>2nd Level</span>
+            <span>3%</span>
           </div>
         </div>
-        {user?.invitedBy && (
+        {!user?.invitedBy && (
           <>
             {" "}
             <p className="font-medium text-xl mt-6 mb-4 ">Invitation Code</p>
@@ -78,11 +158,21 @@ const Invite: React.FC = () => {
                 type="text"
                 placeholder="Enter Refer Code"
                 className="w-full bg-transparent outline-none"
+                onChange={(e) => setCode(e.target.value)}
+                value={code}
               />
-              <button className=" bg-blue-600 text-white rounded-full p-2">
-                <IoMdArrowForward size={28} />
+              <button
+                onClick={handleAddRefferer}
+                className=" bg-blue-600 text-white rounded-full p-2"
+              >
+                {loading ? (
+                  <ImSpinner9 size={28} className={"animate-spin"} />
+                ) : (
+                  <IoMdArrowForward size={28} />
+                )}
               </button>
             </div>
+            {error && <div className="text-xs text-red-500">{error}</div>}
           </>
         )}
       </div>

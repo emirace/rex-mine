@@ -37,6 +37,7 @@ const Card: React.FC<CardProps> = ({
       setLoading(true);
       await invest({ levelId, amount });
       setLoading(false);
+      setShowModal(false);
     } catch (error: any) {
       setLoading(false);
       setError(error?.response?.data?.message || error.message);
@@ -45,8 +46,10 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <div className="flex relative bg-gradient-to-r bg-opacity-70 from-primary to-[#103256] rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <div className="bg-secondary font-bold text-white text-2xl flex items-center rounded-full p-3 mr-4">
-        {level}
+      <div className="">
+        <div className="bg-secondary w-10 h-10 flex justify-center items-center font-bold text-white text-2xl  rounded-full  mr-4">
+          {level}
+        </div>
       </div>
       <div className="absolute top-4 right-4 text-primary flex items-center border border-primary rounded-full px-2">
         <FaBolt />
