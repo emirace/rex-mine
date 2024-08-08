@@ -10,13 +10,15 @@ import Invite from "./pages/Invite";
 import Deposit from "./pages/Deposit";
 import WithdrawalRequest from "./pages/WithdrawalRequest";
 import Auth from "./pages/auth";
+import Layout from "./pages";
 
 const router = createBrowserRouter([
+  { path: "/", element: <App /> },
   {
     path: "/",
-    element: <App />,
+    element: <Layout />,
     children: [
-      { path: "/", element: <Home /> },
+      { path: "/home", element: <Home /> },
       { path: "invite", element: <Invite /> },
       { path: "mine", element: <Mine /> },
       { path: "profile", element: <Profile /> },

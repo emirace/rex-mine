@@ -9,9 +9,9 @@ function Navbar() {
   const notAllowedRoutes = ["/profile"];
   return (
     <>
-      <div className="fixed top-0 left-0 z-20  right-0 bg-background flex p-4 justify-between items-center text-white shadow-sm shadow-primary">
+      <div className="fixed top-0 left-0 z-20  right-0 bg-background flex px-6 py-2 justify-between items-center text-white shadow-sm shadow-primary">
         <Link to="/" className="font-bold text-xl">
-          <img src="/images/logo.png" alt="logo" className="w-8" />
+          <img src="/images/logo.png" alt="logo" className="w-12" />
         </Link>
         <div className="flex items-center gap-3">
           <div className="capitalize text-white font-medium ">

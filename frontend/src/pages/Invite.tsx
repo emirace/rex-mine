@@ -149,6 +149,13 @@ const Invite: React.FC = () => {
             <span>3%</span>
           </div>
         </div>
+        <div className="my-10 bg-secondary p-6 rounded-lg">
+          <div className="font-medium text-lg mb-2">Refferal level Rules</div>
+          After Level 1 friend successfully deposit and invest you will get a
+          commission of 7% of their investment, and if level 1 invites a person
+          and they invest, you will get a commission of 3%. it can be withdraw
+          for investment or your crypto wallet at any time
+        </div>
         {!user?.invitedBy && (
           <>
             {" "}

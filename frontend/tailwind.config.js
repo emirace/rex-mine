@@ -8,6 +8,9 @@ export default {
         primary: "#2563eb",
         secondary: "#2b2e4a",
       },
+      backgroundImage: {
+        "hero-pattern": "url('/images/hero.webp')",
+      },
     },
   },
   plugins: [],

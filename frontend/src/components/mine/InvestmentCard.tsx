@@ -13,12 +13,14 @@ interface UserInvestmentCardProps {
 }
 
 const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
-  const { amount, startDate, endDate, investmentLevel } = investment;
-  const { invest } = useUserInvestment(); // Hook to handle investment actions
+  const { _id, amount, startDate, endDate, investmentLevel, isClaimable } =
+    investment;
+  const { invest, claim } = useUserInvestment(); // Hook to handle investment actions
 
   const [showModal, setShowModal] = useState(false);
   const [newAmount, setNewAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingClaim, setLoadingClaim] = useState(false);
   const [error, setError] = useState("");
 
   const handleInvest = async () => {
@@ -30,6 +32,18 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
       setShowModal(false);
     } catch (error: any) {
       setLoading(false);
+      setError(error?.response?.data?.message || error.message);
+    }
+  };
+
+  const handleClaim = async () => {
+    setError("");
+    try {
+      setLoadingClaim(true);
+      await claim(_id);
+      setLoadingClaim(false);
+    } catch (error: any) {
+      setLoadingClaim(false);
       setError(error?.response?.data?.message || error.message);
     }
   };
@@ -65,12 +79,23 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
         <strong>End Date:</strong> {new Date(endDate).toLocaleDateString()}
       </p>
 
-      <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
-        <div
-          className="bg-green-500 h-4 rounded-full animate-pulse"
-          style={{ width: `${progressPercentage}%` }}
-        ></div>
-      </div>
+      {isClaimable ? (
+        <Button
+          onClick={handleClaim}
+          className="bg-primary text-white mb-2 py-[8px] "
+          disabled={loadingClaim}
+          loading={loadingClaim}
+        >
+          Claim
+        </Button>
+      ) : (
+        <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+          <div
+            className="bg-green-500 h-4 rounded-full animate-pulse"
+            style={{ width: `${progressPercentage}%` }}
+          ></div>
+        </div>
+      )}
       <p className="text-right text-xs font-semibold text-white">
         {progressPercentage.toFixed(1)}% Complete
       </p>

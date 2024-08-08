@@ -8,6 +8,7 @@ export interface UserInvestment {
   startDate: Date;
   endDate: Date; // End date for the investment
   nextPaybackDate: Date;
+  isClaimable: boolean;
 }
 
 export const getUserInvestments = async (): Promise<UserInvestment[]> => {
@@ -23,6 +24,16 @@ export const getUserInvestments = async (): Promise<UserInvestment[]> => {
 export const getAllInvestments = async (): Promise<UserInvestment[]> => {
   try {
     const response = await api.get<UserInvestment[]>("/investments/all");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const claimInvestment = async (id: string): Promise<UserInvestment> => {
+  try {
+    const response = await api.get<UserInvestment>(`/investments/claim/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);

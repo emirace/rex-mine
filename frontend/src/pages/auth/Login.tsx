@@ -32,7 +32,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (!loadingUser && user) {
-      navigate("/");
+      navigate("/home");
     }
   }, [user]);
 

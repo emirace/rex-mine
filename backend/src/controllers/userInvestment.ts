@@ -4,6 +4,7 @@ import UserInvestment from "../models/userInvestment";
 import User from "../models/user";
 import { AuthRequest } from "../middleware/auth";
 import Transaction from "../models/transaction";
+import mongoose from "mongoose";
 
 // User invests in a plan
 export const invest = async (req: AuthRequest, res: Response) => {
@@ -85,6 +86,7 @@ export const processInvestments = async () => {
     // Find all investments with due paybacks that haven't expired
     const investments = await UserInvestment.find({
       nextPaybackDate: { $lte: today },
+      isClaimable: false,
       endDate: { $gte: today }, // Ensure the investment is still valid
     }).populate("investmentLevel");
 
@@ -100,13 +102,67 @@ export const processInvestments = async () => {
       });
 
       // Update next payback date
-      investment.nextPaybackDate.setDate(
-        investment.nextPaybackDate.getDate() + 1
-      );
-      await investment.save();
+
+      investment.isClaimable = true;
+      const res = await investment.save();
     }
   } catch (error) {
     console.error("Error processing investments:", error);
+  }
+};
+
+export const claimInvestment = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?._id;
+
+  try {
+    // Fetch investment and validate ownership and claimable status in one query
+    const investment = await UserInvestment.findOne({
+      _id: id,
+      userId,
+      isClaimable: true,
+    }).populate("investmentLevel");
+
+    if (!investment) {
+      return res
+        .status(404)
+        .json({ message: "Investment not found or not claimable" });
+    }
+
+    // Use a transaction for atomic operations on investment and user documents
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const level = investment.investmentLevel as any;
+      const dailyReturn = (investment.amount * level.percentage) / 100;
+
+      // Update user's mining balance
+      await User.findByIdAndUpdate(
+        userId,
+        { $inc: { miningBalance: dailyReturn } },
+        { session }
+      );
+
+      // Update investment status
+      investment.isClaimable = false;
+      const nextPaybackDate = new Date();
+      nextPaybackDate.setDate(nextPaybackDate.getDate() + 1);
+      investment.nextPaybackDate = nextPaybackDate;
+      const resp = await investment.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res.json(resp);
+    } catch (transactionError) {
+      await session.abortTransaction();
+      session.endSession();
+      throw transactionError;
+    }
+  } catch (error) {
+    console.error("Error claiming investment:", error);
+    res.status(500).json({ error: "Unable to claim investment" });
   }
 };
 

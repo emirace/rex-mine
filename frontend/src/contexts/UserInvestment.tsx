@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  claimInvestment,
   createInvestment,
   getUserInvestments,
   UserInvestment,
@@ -15,6 +16,8 @@ import { useUser } from "./Auth";
 interface UserInvestmentContextType {
   userInvestments: UserInvestment[];
   invest: (data: { levelId: string; amount: string }) => Promise<void>;
+  claim: (id: string) => Promise<void>;
+  isClaimable: boolean;
 }
 const UserInvestmentContext = createContext<
   UserInvestmentContextType | undefined
@@ -29,6 +32,8 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
 }) => {
   const { user } = useUser();
   const [userInvestments, setUserInvestments] = useState<UserInvestment[]>([]);
+  const [isClaimable, setIsClaimable] = useState(false);
+
   const getAllInvestmentLevels = async () => {
     try {
       const userInvestments = await getUserInvestments();
@@ -48,6 +53,27 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
     }
   };
 
+  const claim = async (id: string) => {
+    try {
+      const investmentRes = await claimInvestment(id);
+      setUserInvestments((prev) =>
+        prev.map((investment) =>
+          investment._id === investmentRes._id ? investmentRes : investment
+        )
+      );
+    } catch (error) {
+      console.error("Failed to claim investment:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const res = userInvestments.some(
+      (investment) => investment.isClaimable || false
+    );
+    setIsClaimable(res);
+  }, [userInvestments]);
+
   useEffect(() => {
     if (user) {
       getAllInvestmentLevels();
@@ -55,7 +81,9 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
   }, [user]);
 
   return (
-    <UserInvestmentContext.Provider value={{ userInvestments, invest }}>
+    <UserInvestmentContext.Provider
+      value={{ userInvestments, isClaimable, invest, claim }}
+    >
       {children}
     </UserInvestmentContext.Provider>
   );

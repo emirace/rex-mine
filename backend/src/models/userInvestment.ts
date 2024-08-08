@@ -10,6 +10,7 @@ export interface UserInvestment extends Document {
   startDate: Date;
   endDate: Date; // End date for the investment
   nextPaybackDate: Date;
+  isClaimable: boolean;
 }
 
 // Define the UserInvestment schema
@@ -29,6 +30,7 @@ const UserInvestmentSchema: Schema = new Schema(
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true }, // Include end date
     nextPaybackDate: { type: Date, required: true },
+    isClaimable: { type: Boolean, default: false },
   },
   {
     timestamps: true,

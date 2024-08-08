@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import MineList from "../components/mine/MineList";
 import MineStatus from "../components/mine/MineStatus";
 
 function Mine() {
   const [tab, setTab] = useState("List");
+
+  useEffect(() => {
+    // Parse the query parameters from the current URL
+    const searchParams = new URLSearchParams(window.location.search);
+
+    // Check if the 'status' query parameter is 'true'
+    if (searchParams.get("status") === "true") {
+      setTab("Status");
+    }
+  }, []);
 
   return (
     <div className="max-w-2xl p-6   ">

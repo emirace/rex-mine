@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { AuthRequest } from "../middleware/auth";
 import UserInvestment from "../models/userInvestment";
 import mongoose from "mongoose";
+import { processInvestments } from "./userInvestment";
 
 // Secret key for JWT (normally you'd use an environment variable)
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -208,12 +209,11 @@ export const getUserHourlyReturnRate = async (
   res: Response
 ) => {
   const userId = req.user?._id; // Assume userId is set by auth middleware
-  console.log("here");
   try {
     // Find all active investments for the user
     const investments: any = await UserInvestment.find({
       userId,
-      nextPaybackDate: { $gte: new Date() },
+      // nextPaybackDate: { $gte: new Date() },
       endDate: { $gte: new Date() },
     }).populate("investmentLevel");
 
