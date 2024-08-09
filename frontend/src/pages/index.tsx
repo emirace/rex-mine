@@ -29,7 +29,7 @@ function Layout() {
   }
 
   return (
-    <div className="bg-background h-screen overflow-hidden">
+    <div className=" bg-gradient-to-b bg-opacity-70 from-background to-blue-800 h-screen overflow-hidden">
       <Navbar />
       <div className="flex h-full">
         <Sidebar />

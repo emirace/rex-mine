@@ -39,29 +39,33 @@ const Carousel = () => {
   }, []);
 
   return (
-    <div className="relative w-full  overflow-hidden ">
+    <div className="relative w-full overflow-hidden">
       <div
-        className="flex transition-transform duration-700 gap-5"
-        style={{ transform: `translateX(-${currentIndex * 105}%)` }}
+        className="flex transition-transform duration-700"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {carouselImages.map((image, index) => (
           <div
             key={index}
-            className={`relative bg-gradient-to-r bg-opacity-70 from-primary to-[#103256] rounded-lg w-full flex-shrink-0 h-36`}
+            className="relative w-full flex-shrink-0"
+            style={{ minWidth: "100%" }} // Ensure each item takes full width
           >
-            <div className="absolute top-4 left-4 text-white">
-              <h2 className="text-lg font-bold shadow-md">{image.caption}</h2>
-              <p className="text-xs">{image.subCaption}</p>
+            <div className="bg-gradient-to-r bg-opacity-70 from-primary to-[#103256] rounded-lg h-48 sm:h-56 md:h-64 lg:h-72 flex items-center p-4">
+              <div className="text-white">
+                <h2 className="text-lg font-bold shadow-md">{image.caption}</h2>
+                <p className="text-xs">{image.subCaption}</p>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-white flex gap-2 rounded-full p-1 absolute bottom-2 right-2 ">
+      <div className="flex gap-2 rounded-full p-1 absolute bottom-2 right-2 bg-opacity-70">
         {carouselImages.map((_, index) => (
           <div
+            key={index} // Added key prop for mapping
             onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 ${
+            className={`w-2 h-2 cursor-pointer ${
               currentIndex === index ? "bg-black" : "bg-gray-300"
             } rounded-full`}
           />

@@ -45,7 +45,21 @@ const Profile: React.FC = () => {
       {/* Balance Card */}
       <div className="bg-gradient-to-r bg-opacity-70 from-primary to-[#103256] text-white p-6 rounded-lg shadow-md mb-8 w-full ">
         <h2 className="text-xl font-bold">Current Balance</h2>
-        <p className="text-3xl mt-4">{user?.balance} TRX</p>
+        <p className="text-3xl mt-4">
+          {(
+            (user?.balance || 0) +
+            (user?.miningBalance || 0) +
+            (user?.promotionalBalance || 0)
+          ).toFixed(2)}{" "}
+          TRX
+        </p>
+        <div className="">
+          Withdrawable Balance:{" "}
+          {(
+            (user?.miningBalance || 0) + (user?.promotionalBalance || 0)
+          ).toFixed(2)}
+          TRX
+        </div>
       </div>
       <div className="flex items-center justify-between rounded-full bg-secondary py-2 px-4 ">
         <div className="text-white text-lg">

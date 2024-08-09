@@ -68,8 +68,11 @@ const Home: React.FC = () => {
                 </span>
               </span>
             ) : hourlyRate ? (
-              <div className="animate-bounce">
-                <ImArrowDown color={"white"} size={24} />
+              <div className="flex flex-col justify-center items-center">
+                <div className="animate-bounce">
+                  <ImArrowDown color={"white"} size={24} />
+                </div>
+                <div className="text-white text-xs font-bold">Mining</div>
               </div>
             ) : (
               <span
@@ -101,13 +104,13 @@ const Home: React.FC = () => {
         </div>
 
         <div className="flex gap-3 items-center">
-          <div className="w-full bg-secondary text-white rounded-full py-4 px-6 mb-4 flex items-center justify-between">
+          <div className="w-full bg-black text-center text-white rounded-full py-4 px-6 mb-4 flex items-center justify-between">
             <span className="font-medium">
               Mining Balance: {user?.miningBalance}TRX
             </span>
             <div />
           </div>
-          <div className="w-full bg-secondary text-white rounded-full py-4 px-6 mb-4 flex items-center justify-between">
+          <div className="w-full bg-black text-white text-center rounded-full py-4 px-6 mb-4 flex items-center justify-between">
             <span className="font-medium">
               Promotion Balance: {user?.promotionalBalance}TRX
             </span>
@@ -117,7 +120,7 @@ const Home: React.FC = () => {
 
         <button
           onClick={() => navigate("/mine?status=true")}
-          className="w-full bg-secondary text-white rounded-full py-4 px-6 mb-4 flex items-center justify-between"
+          className="w-full bg-primary bg-opacity-70  text-white rounded-full py-4 px-6 mb-4 flex items-center justify-between"
         >
           <SlSpeedometer size={28} />
           <span className="font-medium">Boost X2</span>

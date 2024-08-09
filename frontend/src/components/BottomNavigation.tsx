@@ -7,7 +7,7 @@ import { FaRegUser } from "react-icons/fa6";
 
 const navbarLinks = [
   {
-    path: "/",
+    path: "/home",
     text: "Home",
     icon: <RiHomeLine size={28} />,
   },

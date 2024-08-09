@@ -13,16 +13,19 @@ function Navbar() {
         <Link to="/" className="font-bold text-xl">
           <img src="/images/logo.png" alt="logo" className="w-12" />
         </Link>
+        <div className="capitalize text-white font-medium ">
+          Welcome {user?.username}
+        </div>
         <div className="flex items-center gap-3">
-          <div className="capitalize text-white font-medium ">
-            Welcome {user?.username}
-          </div>
           <a
             href="https://t.me/rex_mine_agent" // Replace with your Telegram channel URL
             target="_blank" // Opens the link in a new tab
             rel="noopener noreferrer" // For security purposes
           >
-            <BiSupport size={28} className="cursor-pointer text-white" />
+            <BiSupport
+              size={35}
+              className="cursor-pointer text-white bg-primary bg-opacity-50 rounded-full p-1"
+            />
           </a>
           {notAllowedRoutes.includes(location.pathname) && (
             <IoMdPower

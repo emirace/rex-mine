@@ -139,13 +139,19 @@ const Invite: React.FC = () => {
             <LuShare2 size={28} />
           </button>
         </div>
-        <div className="my-10 bg-secondary p-6 rounded-lg">
-          <div className="flex justify-between">
+        <div className="my-10 bg-secondary p-4 rounded-lg">
+          <div className="flex justify-between bg-primary bg-opacity-70 p-2 px-4 rounded-md mb-2">
+            <span className="bg-[#d6be0c] text-white font-bold rounded-full w-7 h-7 justify-center items-center flex">
+              1
+            </span>
             <span>1st Level </span>
             <span>7%</span>
           </div>
-          <div className="flex justify-between">
-            <span>2nd Level</span>
+          <div className="flex justify-between bg-primary bg-opacity-30 p-2 px-4 rounded-md">
+            <span className="bg-[#bbbbba] text-white font-bold rounded-full w-7 h-7 justify-center items-center flex">
+              2
+            </span>
+            <span>2nd Level </span>
             <span>3%</span>
           </div>
         </div>
@@ -153,7 +159,7 @@ const Invite: React.FC = () => {
           <div className="font-medium text-lg mb-2">Refferal level Rules</div>
           After Level 1 friend successfully deposit and invest you will get a
           commission of 7% of their investment, and if level 1 invites a person
-          and they invest, you will get a commission of 3%. it can be withdraw
+          and they invest, you will get a commission of 3%. it can be withdrawn
           for investment or your crypto wallet at any time
         </div>
         {!user?.invitedBy && (

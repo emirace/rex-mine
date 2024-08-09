@@ -30,8 +30,10 @@ const Card: React.FC<CardProps> = ({
 
   const handleInvest = async () => {
     setError("");
-    if (!amount && parseFloat(amount) < minAmount) {
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount < minAmount) {
       setError("Enter a valid amount");
+      return;
     }
     try {
       setLoading(true);

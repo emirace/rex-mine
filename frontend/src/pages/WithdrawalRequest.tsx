@@ -3,6 +3,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import { useUser } from "../contexts/Auth";
 import { withdrawal } from "../services/withdrawal";
+import { useNavigate } from "react-router-dom";
 
 const WithdrawalRequest: React.FC = () => {
   const { user } = useUser();
@@ -11,6 +12,7 @@ const WithdrawalRequest: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleWithdrawal = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +43,8 @@ const WithdrawalRequest: React.FC = () => {
       await withdrawal({ amount: amountValue, cryptoAddress: walletAddress });
       setShowModal(true);
       setLoading(false);
+      setAmount("");
+      setWalletAddress("");
     } catch (error: any) {
       setErrorMessage(error?.response?.data?.message || error.message);
       setLoading(false);
@@ -98,9 +102,28 @@ const WithdrawalRequest: React.FC = () => {
         >
           Submit Withdrawal
         </Button>
+
+        <div className="bg-secondary p-4 rounded-lg shadow-lg w-full text-white">
+          <p className="text-yellow-300 font-semibold mb-2">
+            Important Information:
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Withdrawal amount is from 0.01TRX - 20millionTRX.</li>
+            <li>Withdrawal may take up to 10 minutes to arrive.</li>
+            <li>5% fee is charge for withdrrawal</li>
+            <li>Do not use any address other than trc20 network</li>
+          </ul>
+        </div>
       </form>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} size="lg">
+      <Modal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          navigate("/home");
+        }}
+        size="lg"
+      >
         <div className="p-6 text-white">
           <h2 className="text-xl font-bold mb-4">Withdrawal Confirmation</h2>
           <p>

@@ -6,7 +6,7 @@ import { NavLink } from "react-router-dom";
 
 const navbarLinks = [
   {
-    path: "/",
+    path: "/home",
     text: "Home",
     icon: <RiHomeLine size={24} />,
   },
