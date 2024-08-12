@@ -4,6 +4,8 @@ import Modal from "../components/Modal";
 import { useUser } from "../contexts/Auth";
 import { withdrawal } from "../services/withdrawal";
 import { useNavigate } from "react-router-dom";
+import TransactionCode from "../components/transactionCode/EnterCode";
+import { FaCheck } from "react-icons/fa";
 
 const WithdrawalRequest: React.FC = () => {
   const { user } = useUser();
@@ -12,10 +14,10 @@ const WithdrawalRequest: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
   const navigate = useNavigate();
 
-  const handleWithdrawal = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validation = () => {
     const amountValue = parseFloat(amount);
 
     if (amountValue <= 0) {
@@ -37,14 +39,23 @@ const WithdrawalRequest: React.FC = () => {
       setErrorMessage("Please enter a valid TRX wallet address.");
       return;
     }
+    setShowTransactionModal(true);
+  };
+
+  const handleWithdrawal = async (code: string) => {
+    setShowTransactionModal(false);
+    const amountValue = parseFloat(amount);
+
     try {
       setLoading(true);
       setErrorMessage("");
-      await withdrawal({ amount: amountValue, cryptoAddress: walletAddress });
+      await withdrawal({
+        amount: amountValue,
+        cryptoAddress: walletAddress,
+        code,
+      });
       setShowModal(true);
       setLoading(false);
-      setAmount("");
-      setWalletAddress("");
     } catch (error: any) {
       setErrorMessage(error?.response?.data?.message || error.message);
       setLoading(false);
@@ -60,11 +71,15 @@ const WithdrawalRequest: React.FC = () => {
     <div className="flex flex-col  p-6">
       <h1 className="text-white text-2xl font-bold mb-6">Withdraw TRX</h1>
 
-      <form onSubmit={handleWithdrawal} className="w-full max-w-2xl space-y-8">
+      <div className="w-full max-w-2xl space-y-8">
         <div className="flex flex-col">
           <label htmlFor="amount" className="text-white mb-2">
             Withdrawal Amount
           </label>
+          <p className="text-xs mb-1 text-white">
+            Withdrawal Amount(Mining + promotionL Balance) ={" "}
+            {(user?.miningBalance || 0) + (user?.promotionalBalance || 0)}
+          </p>
           <input
             type="number"
             id="amount"
@@ -95,9 +110,12 @@ const WithdrawalRequest: React.FC = () => {
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 
         <Button
-          type="submit"
+          type="button"
+          onClick={validation}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-          disabled={!amount || !walletAddress || loading}
+          disabled={
+            !amount || !walletAddress || loading || parseFloat(amount) < 0.1
+          }
           loading={loading}
         >
           Submit Withdrawal
@@ -108,25 +126,33 @@ const WithdrawalRequest: React.FC = () => {
             Important Information:
           </p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Withdrawal amount is from 0.01TRX - 20millionTRX.</li>
+            <li>Withdrawal amount is from 0.1TRX - 20millionTRX.</li>
             <li>Withdrawal may take up to 10 minutes to arrive.</li>
             <li>5% fee is charge for withdrrawal</li>
             <li>Do not use any address other than trc20 network</li>
           </ul>
         </div>
-      </form>
+      </div>
 
+      <Modal
+        isOpen={showTransactionModal}
+        onClose={() => {
+          setShowTransactionModal(false);
+        }}
+      >
+        <TransactionCode onSubmitCode={handleWithdrawal} />
+      </Modal>
       <Modal
         isOpen={showModal}
         onClose={() => {
           setShowModal(false);
           navigate("/home");
         }}
-        size="lg"
       >
-        <div className="p-6 text-white">
+        <div className="p-6 text-white flex flex-col justify-center items-center">
+          <FaCheck className="text-white bg-green-400 text-5xl rounded-full p-2 mb-4" />
           <h2 className="text-xl font-bold mb-4">Withdrawal Confirmation</h2>
-          <p>
+          <p className="text-center">
             Your withdrawal request for {amount} TRX has been submitted to the
             following address:
           </p>

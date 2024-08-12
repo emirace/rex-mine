@@ -1,12 +1,13 @@
 // src/services/userService.ts
 
+import { Transaction } from "../contexts/Transaction";
 import api from "./api";
+import { UserInvestment } from "./userInvestment";
 
 // Define the User interface
 export interface User {
   _id: string;
-  name: string;
-  email: string;
+  fullName: string;
   username: string;
   balance: number;
   miningBalance: number;
@@ -51,9 +52,15 @@ export const getCurrentUser = async (): Promise<User> => {
 };
 
 // Get user by ID (Admin only)
-export const getUserById = async (id: string): Promise<User> => {
+export const getUserById = async (
+  id: string
+): Promise<{
+  user: User;
+  transactions: Transaction[];
+  investments: UserInvestment[];
+}> => {
   try {
-    const response = await api.get<User>(`/users/${id}`);
+    const response = await api.get(`/users/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching user with ID ${id}:`, error);
@@ -163,6 +170,16 @@ export const deleteUser = async (id: string): Promise<void> => {
     await api.delete(`/users/${id}`);
   } catch (error) {
     console.error(`Error deleting user with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+export const getReferrals = async () => {
+  try {
+    const response = await api.get(`/users/referrals`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching referrals:", error);
     throw error;
   }
 };

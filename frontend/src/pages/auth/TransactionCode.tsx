@@ -19,7 +19,7 @@ const TransactionCode: React.FC = () => {
       navigate("/login");
     }
     if (!loading && user?.hasTransactionCode) {
-      navigate("/");
+      navigate("/home");
     }
     console.log(user);
   }, [user]);

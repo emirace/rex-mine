@@ -62,7 +62,6 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
 
     // Add transactions id to crypto block array
     callbackBlockTransactionCrypto.push(transactionId.toString());
-    console.log("check 1");
     try {
       // Get crypto address and crypto transaction from database
       const [cryptoAddress, transaction]: any = await Promise.all([
@@ -82,16 +81,12 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
           .lean(),
       ]);
 
-      console.log(cryptoAddress, transaction, req.body.ipn_type);
-
       if (
         req.body.ipn_type === "deposit" &&
         cryptoAddress &&
         !transaction &&
         req.body.status >= 100
       ) {
-        console.log("check 2");
-
         // Get transaction amount
         const amount = req.body.amount;
 
@@ -121,20 +116,35 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
             User.findByIdAndUpdate(
               cryptoAddress.userId.invitedBy._id,
               {
-                $inc: { promotionalBalance: amount * (7 / 100) },
+                $inc: { promotionalBalance: amount * 0.07 },
               },
               {}
-            )
+            ),
+            Transaction.create({
+              amount: amount * 0.07,
+              type: "ReferralBonus",
+              reffered: cryptoAddress.userId._id,
+              status: "Completed",
+              userId: cryptoAddress.userId.invitedBy._id,
+            })
           );
+
           if (cryptoAddress.userId.invitedBy.invitedBy) {
             promises.push(
               User.findByIdAndUpdate(
                 cryptoAddress.userId.invitedBy.invitedBy,
                 {
-                  $inc: { promotionalBalance: amount * (3 / 100) },
+                  $inc: { promotionalBalance: amount * 0.03 },
                 },
                 {}
-              )
+              ),
+              Transaction.create({
+                amount: amount * 0.03,
+                type: "ReferralBonus",
+                referred: cryptoAddress.userId._id,
+                status: "Completed",
+                userId: cryptoAddress.userId.invitedBy.invitedBy,
+              })
             );
           }
         }

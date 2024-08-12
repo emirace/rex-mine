@@ -11,34 +11,74 @@ export const invest = async (req: AuthRequest, res: Response) => {
   const { levelId, amount } = req.body;
   const userId = req.user?._id;
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     // Find the investment level
-    const level = await InvestmentLevel.findById(levelId);
+    const level = await InvestmentLevel.findById(levelId).session(session);
     if (!level) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ message: "Investment level not found" });
     }
 
     // Check if the amount is within the valid range
     if (amount < level.minAmount || amount > level.maxAmount) {
+      await session.abortTransaction();
+      session.endSession();
       return res
         .status(400)
         .json({ message: "Investment amount is out of range" });
     }
 
     // Find the user
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).session(session);
     if (!user) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check if user has enough balance
-    if (user.balance < amount) {
-      return res.status(400).json({ message: "Insufficient balance" });
+    // Check total available funds
+    const totalAvailable =
+      user.balance + user.miningBalance + user.promotionalBalance;
+
+    if (totalAvailable < amount) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "Insufficient funds" });
     }
 
-    // Deduct investment amount from user's balance
-    user.balance -= amount;
-    await user.save();
+    // Deduct from the user's balance first
+    let remainingAmount = amount;
+
+    if (user.balance >= remainingAmount) {
+      user.balance -= remainingAmount;
+      remainingAmount = 0;
+    } else {
+      remainingAmount -= user.balance;
+      user.balance = 0;
+    }
+
+    // If there's still an amount left, deduct from the mining balance
+    if (remainingAmount > 0) {
+      if (user.miningBalance >= remainingAmount) {
+        user.miningBalance -= remainingAmount;
+        remainingAmount = 0;
+      } else {
+        remainingAmount -= user.miningBalance;
+        user.miningBalance = 0;
+      }
+    }
+
+    // If there's still an amount left, deduct from the promotional balance
+    if (remainingAmount > 0) {
+      user.promotionalBalance -= remainingAmount;
+      remainingAmount = 0;
+    }
+
+    await user.save({ session });
 
     const transaction = new Transaction({
       amount: amount,
@@ -47,14 +87,12 @@ export const invest = async (req: AuthRequest, res: Response) => {
       status: "Completed",
     });
 
-    await transaction.save();
+    await transaction.save({ session });
 
     // Calculate start date, end date, and next payback date
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(
-      endDate.getDate() + level.validDays + level.paybackCycleDays
-    ); // Set the end date
+    endDate.setDate(endDate.getDate() + level.validDays); // Set the end date
     const nextPaybackDate = new Date(startDate);
     nextPaybackDate.setDate(nextPaybackDate.getDate() + 1);
 
@@ -68,12 +106,17 @@ export const invest = async (req: AuthRequest, res: Response) => {
       nextPaybackDate,
     });
 
-    await userInvestment.save();
+    await userInvestment.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     res
       .status(201)
       .json({ message: "Investment successful", investment: userInvestment });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({ error: "Error processing investment" });
   }
 };

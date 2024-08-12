@@ -11,6 +11,11 @@ import Deposit from "./pages/Deposit";
 import WithdrawalRequest from "./pages/WithdrawalRequest";
 import Auth from "./pages/auth";
 import Layout from "./pages";
+import Admin from "./pages/admin";
+import Users from "./pages/admin/Users";
+import Withdrawal from "./pages/admin/Withdrawal";
+import AdminUserDetail from "./pages/admin/AdminUserDetail";
+import WithdrawalRequestDetail from "./pages/admin/WithdrawalRequestDetail";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -34,6 +39,16 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
       { path: "/transaction-code", element: <TransactionCode /> },
+    ],
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
+    children: [
+      { path: "users", element: <Users /> },
+      { path: "withdrawals", element: <Withdrawal /> },
+      { path: "withdrawals/:id", element: <WithdrawalRequestDetail /> },
+      { path: "users/:userId", element: <AdminUserDetail /> },
     ],
   },
 ]);

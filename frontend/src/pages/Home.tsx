@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MdOutlinePayment } from "react-icons/md";
 import { SlSpeedometer } from "react-icons/sl";
 import { PiHandWithdrawLight } from "react-icons/pi";
-import { BiTransfer } from "react-icons/bi";
+import { RiTeamLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import Carousel from "../components/Caroisel";
 import { getHourlyReturnRate } from "../services/user";
@@ -146,11 +146,14 @@ const Home: React.FC = () => {
             </div>
             <div className="text-white">Withdrawal</div>
           </Link>
-          <Link className="flex justify-center items-center flex-col" to="#">
+          <Link
+            className="flex justify-center items-center flex-col"
+            to="/invite/#teams"
+          >
             <div className="bg-purple-800 rounded-full p-3 mx-1">
-              <BiTransfer className="text-white" size={28} />
+              <RiTeamLine className="text-white" size={28} />
             </div>
-            <div className="text-white">Transfer</div>
+            <div className="text-white">Team</div>
           </Link>
         </div>
       </div>

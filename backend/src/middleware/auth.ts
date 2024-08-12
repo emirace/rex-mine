@@ -25,7 +25,6 @@ export const auth =
       const decoded: any = jwt.verify(token, JWT_SECRET);
       req.user = decoded.user as User;
       // console.log(req.user);
-
       if (requiredRole && req.user.role !== requiredRole) {
         return res
           .status(403)

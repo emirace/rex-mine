@@ -7,7 +7,6 @@ interface TransactionCodeProps {
 
 const TransactionCode: React.FC<TransactionCodeProps> = ({ onSubmitCode }) => {
   const [otp, setOtp] = useState(Array(5).fill(""));
-  const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (element: HTMLInputElement, index: number) => {
@@ -35,15 +34,10 @@ const TransactionCode: React.FC<TransactionCodeProps> = ({ onSubmitCode }) => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
 
     const enteredOtp = otp.join("");
 
-    // Simulate transaction code API call
-    setTimeout(() => {
-      setLoading(false);
-      onSubmitCode(enteredOtp); // Pass the code to the parent component
-    }, 2000);
+    onSubmitCode(enteredOtp);
   };
 
   return (
@@ -75,8 +69,7 @@ const TransactionCode: React.FC<TransactionCodeProps> = ({ onSubmitCode }) => {
           <Button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold mt-4"
-            loading={loading}
-            disabled={loading || otp.some((digit) => digit === "")}
+            disabled={otp.some((digit) => digit === "")}
           >
             Continue
           </Button>

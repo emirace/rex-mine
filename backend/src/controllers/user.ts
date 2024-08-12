@@ -8,7 +8,7 @@ import crypto from "crypto";
 import { AuthRequest } from "../middleware/auth";
 import UserInvestment from "../models/userInvestment";
 import mongoose from "mongoose";
-import { processInvestments } from "./userInvestment";
+import Transaction from "../models/transaction";
 
 // Secret key for JWT (normally you'd use an environment variable)
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -128,17 +128,32 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 };
 
-// Get user by ID
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: "User not found" });
+
+    // Find the user by ID
+    const user = await User.findById(id).lean();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    // Fetch the user's transaction history
+    const transactions = await Transaction.find({ userId: id }).lean();
+
+    // Fetch the user's investment history
+    const investments = await UserInvestment.find({ userId: id })
+      .populate("investmentLevel", "name") // Populate investment level details if needed
+      .lean();
+
+    // Return user details along with transactions and investments
+    res.json({
+      user,
+      transactions,
+      investments,
+    });
   } catch (error) {
+    console.error("Error fetching user details:", error);
     res.status(500).json({ error: "Error fetching user" });
   }
 };
@@ -315,5 +330,43 @@ export const addReferrer = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error("Error adding referrer:", error);
     return res.status(500).json({ error: "Error adding referrer" });
+  }
+};
+
+export const getReferralBonuses = async (req: AuthRequest, res: Response) => {
+  const userId = req.user?._id;
+
+  try {
+    // Find all transactions where the current user received a referral bonus
+    const referralBonuses: any = await Transaction.find({
+      userId,
+      type: "ReferralBonus",
+    })
+      .populate("referred", "fullName username")
+      .lean();
+
+    if (!referralBonuses.length) {
+      return res.status(200).json({
+        message: "No referral bonuses found",
+        referrals: [],
+      });
+    }
+
+    // Map the referral bonuses to include the referred user details and the bonus amount
+    const referrals = referralBonuses.map(
+      (bonus: { referred: { fullName: any; username: any }; amount: any }) => ({
+        fullName: bonus.referred.fullName,
+        username: bonus.referred.username,
+        bonusAmount: bonus.amount,
+      })
+    );
+
+    res.status(200).json({
+      message: "Referral bonuses retrieved successfully",
+      referrals,
+    });
+  } catch (error) {
+    console.error("Error fetching referral bonuses:", error);
+    res.status(500).json({ message: "Error fetching referral bonuses" });
   }
 };

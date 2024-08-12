@@ -7,6 +7,7 @@ import { UserProvider } from "./contexts/Auth.tsx";
 import { InvestmentLevelProvider } from "./contexts/InvestmentLevel.tsx";
 import { UserInvestmentProvider } from "./contexts/UserInvestment.tsx";
 import { TransactionProvider } from "./contexts/Transaction.tsx";
+import { WithdrawalProvider } from "./contexts/WithdrawalRequest.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <InvestmentLevelProvider>
         <UserInvestmentProvider>
           <TransactionProvider>
-            <RouterProvider router={router} />
+            <WithdrawalProvider>
+              <RouterProvider router={router} />
+            </WithdrawalProvider>
           </TransactionProvider>
         </UserInvestmentProvider>
       </InvestmentLevelProvider>

@@ -20,13 +20,19 @@ import {
   addReferrer,
   claimPromotionBalance,
 } from "../services/user";
+import { Transaction } from "./Transaction";
+import { UserInvestment } from "../services/userInvestment";
 
 interface UserContextType {
   user: User | null;
-  allUsers: User[] | null;
+  allUsers: User[];
   loading: boolean;
   fetchUsers: () => Promise<void>;
-  fetchUserById: (id: string) => Promise<void>;
+  fetchUserById: (id: string) => Promise<{
+    user: User;
+    transactions: Transaction[];
+    investments: UserInvestment[];
+  }>;
   login: (data: { username: string; password: string }) => Promise<void>;
   register: (data: {
     fullName: string;
@@ -51,7 +57,7 @@ interface UserProviderProps {
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [allUsers, setAllUsers] = useState<User[] | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   const fetchUsers = async () => {
     try {
@@ -79,9 +85,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const fetchUserById = async (id: string) => {
     try {
       const user = await getUserById(id);
-      setUser(user);
+      return user;
     } catch (error) {
       console.error(`Failed to fetch user by ID ${id}:`, error);
+      throw error;
     }
   };
 

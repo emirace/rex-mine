@@ -1,18 +1,42 @@
 // src/components/Invite.tsx
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaFacebook, FaRegCopy, FaTelegram, FaXTwitter } from "react-icons/fa6";
 import { IoMdArrowForward } from "react-icons/io";
 import { IoLogoWhatsapp } from "react-icons/io5";
 import { LuShare2 } from "react-icons/lu";
 import { useUser } from "../contexts/Auth";
 import { ImSpinner9 } from "react-icons/im";
+import { getReferrals } from "../services/user";
+import Loading from "../components/Loading";
 
 const Invite: React.FC = () => {
   const { user, addReffererCode } = useUser();
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [referrals, setReferrals] = useState<
+    { fullName: string; username: string; bonusAmount: number }[]
+  >([]);
+  const [loadingReferrals, setLoadingReferrals] = useState(true);
+  const [errorReferrals, setErrorReferrals] = useState("");
+
+  useEffect(() => {
+    const fetchReferrals = async () => {
+      try {
+        setLoadingReferrals(true);
+        setErrorReferrals("");
+        const data = await getReferrals();
+        setReferrals(data.referrals);
+      } catch (error) {
+        setErrorReferrals("Failed to fetch referrals");
+      } finally {
+        setLoadingReferrals(false);
+      }
+    };
+
+    fetchReferrals();
+  }, []);
 
   const shareText = `Join me and get rewards using my referral code: ${user?.referralCode}`;
   const website = "https://www.rex-mine.com";
@@ -188,6 +212,42 @@ const Invite: React.FC = () => {
             {error && <div className="text-xs text-red-500">{error}</div>}
           </>
         )}
+
+        <p id="teams" className="font-medium text-xl mt-6 mb-4 ">
+          My Team
+        </p>
+        <div className="bg-secondary rounded-lg p-4 text-white shadow-md">
+          {loadingReferrals ? (
+            <Loading />
+          ) : errorReferrals ? (
+            <p>{errorReferrals}</p>
+          ) : referrals.length > 0 ? (
+            <ul className="space-y-4">
+              {referrals.map((referral) => (
+                <li
+                  key={referral.username}
+                  className="flex justify-between items-center border-b border-gray-600 pb-2"
+                >
+                  <div>
+                    <p className="font-semibold capitalize">
+                      {referral.fullName}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      @{referral.username}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-green-500 font-semibold">
+                      ${referral.bonusAmount.toFixed(2)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No referrals found.</p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   getUserHourlyReturnRate,
   claimPromotionBalance,
   addReferrer,
+  getReferralBonuses,
 } from "../controllers/user";
 import { auth } from "../middleware/auth";
 
@@ -19,6 +20,7 @@ const router = express.Router();
 router.get("/", auth("Admin"), getUsers);
 router.get("/getUser", auth(), getUser);
 router.get("/hourly", auth(), getUserHourlyReturnRate);
+router.get("/referrals", auth(), getReferralBonuses);
 router.get("/:id", auth("Admin"), getUserById);
 router.post("/login", loginUser);
 router.post("/register", registerUser);
