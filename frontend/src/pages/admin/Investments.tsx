@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  UserInvestment,
-  getAllInvestments,
-} from "../../services/userInvestment";
+import { getAllInvestments } from "../../services/userInvestment";
 
 const Investments: React.FC = () => {
   const [investments, setInvestments] = useState<any>([]);
