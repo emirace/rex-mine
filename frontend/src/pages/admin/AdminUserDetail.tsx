@@ -102,12 +102,12 @@ const AdminUserDetail = () => {
                       <div>
                         <p
                           className={`${
-                            transaction.type === "Withdrawal"
+                            !transaction.incoming
                               ? "text-red-500"
                               : "text-green-500"
                           } font-semibold`}
                         >
-                          {transaction.type === "Withdrawal" ? "-" : "+"}
+                          {!transaction.incoming ? "-" : "+"}
                           {transaction.amount} TRX
                         </p>
                         <p className="text-sm text-gray-400">

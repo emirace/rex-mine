@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  boostInvestment,
   claimInvestment,
   createInvestment,
   getUserInvestments,
@@ -17,6 +18,7 @@ interface UserInvestmentContextType {
   userInvestments: UserInvestment[];
   invest: (data: { levelId: string; amount: string }) => Promise<void>;
   claim: (id: string) => Promise<void>;
+  boost: (id: string, amount: string) => Promise<void>;
   isClaimable: boolean;
 }
 const UserInvestmentContext = createContext<
@@ -67,6 +69,20 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
     }
   };
 
+  const boost = async (id: string, amount: string) => {
+    try {
+      const investmentRes = await boostInvestment(id, amount);
+      setUserInvestments((prev) =>
+        prev.map((investment) =>
+          investment._id === investmentRes._id ? investmentRes : investment
+        )
+      );
+    } catch (error) {
+      console.error("Failed to claim investment:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const res = userInvestments.some(
       (investment) => investment.isClaimable || false
@@ -82,7 +98,7 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
 
   return (
     <UserInvestmentContext.Provider
-      value={{ userInvestments, isClaimable, invest, claim }}
+      value={{ userInvestments, isClaimable, boost, invest, claim }}
     >
       {children}
     </UserInvestmentContext.Provider>

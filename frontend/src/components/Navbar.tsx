@@ -10,7 +10,7 @@ function Navbar() {
   return (
     <>
       <div className="fixed top-0 left-0 z-20  right-0 bg-background flex px-6 py-2 justify-between items-center text-white shadow-sm shadow-primary">
-        <Link to="/" className="font-bold text-xl">
+        <Link to="/home" className="font-bold text-xl">
           <img src="/images/logo.png" alt="logo" className="w-12" />
         </Link>
         <div className="capitalize text-white font-medium ">

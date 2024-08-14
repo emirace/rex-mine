@@ -7,6 +7,7 @@ interface Transaction extends Document {
   type: "Depodit" | "Withdrawal" | "Transfer";
   providerId: string;
   referred?: mongoose.Schema.Types.ObjectId;
+  incoming?: boolean;
 }
 
 const transactionSchema = new Schema<Transaction>(
@@ -25,8 +26,11 @@ const transactionSchema = new Schema<Transaction>(
     providerId: { type: String },
     type: {
       type: String,
-      enum: ["Deposit", "Withdrawal", "ReferralBonus"],
+      enum: ["Deposit", "Withdrawal", "ReferralBonus", "Mining"],
       required: true,
+    },
+    incoming: {
+      type: Boolean,
     },
   },
   {

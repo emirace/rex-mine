@@ -105,6 +105,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
             amount: amount,
             providerId: transactionId,
             type: "Deposit",
+            incoming: true,
             userId: cryptoAddress.userId._id,
             status: "Completed",
           }),
@@ -124,6 +125,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
               amount: amount * 0.07,
               type: "ReferralBonus",
               reffered: cryptoAddress.userId._id,
+              incoming: true,
               status: "Completed",
               userId: cryptoAddress.userId.invitedBy._id,
             })
@@ -142,6 +144,7 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
                 amount: amount * 0.03,
                 type: "ReferralBonus",
                 referred: cryptoAddress.userId._id,
+                incoming: true,
                 status: "Completed",
                 userId: cryptoAddress.userId.invitedBy.invitedBy,
               })

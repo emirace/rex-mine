@@ -16,6 +16,7 @@ import Users from "./pages/admin/Users";
 import Withdrawal from "./pages/admin/Withdrawal";
 import AdminUserDetail from "./pages/admin/AdminUserDetail";
 import WithdrawalRequestDetail from "./pages/admin/WithdrawalRequestDetail";
+import Investments from "./pages/admin/Investments";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
       { path: "withdrawals", element: <Withdrawal /> },
       { path: "withdrawals/:id", element: <WithdrawalRequestDetail /> },
       { path: "users/:userId", element: <AdminUserDetail /> },
+      { path: "investments", element: <Investments /> },
     ],
   },
 ]);

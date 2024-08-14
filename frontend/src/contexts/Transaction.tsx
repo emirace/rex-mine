@@ -8,7 +8,8 @@ export interface Transaction {
   amount: number;
   userId: string;
   status: string;
-  type: "Deposit" | "Withdrawal" | "Transfer";
+  type: "Deposit" | "Withdrawal" | "Transfer" | "Mining";
+  incoming: boolean;
   providerId: string;
   createdAt: string;
   updatedAt: string;

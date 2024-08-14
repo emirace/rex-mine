@@ -21,9 +21,19 @@ export const getUserInvestments = async (): Promise<UserInvestment[]> => {
   }
 };
 
-export const getAllInvestments = async (): Promise<UserInvestment[]> => {
+export const getAllInvestments = async (): Promise<{
+  investments: UserInvestment[];
+  currentPage: number;
+  totalCount: number;
+  totalPages: number;
+}> => {
   try {
-    const response = await api.get<UserInvestment[]>("/investments/all");
+    const response = await api.get<{
+      investments: UserInvestment[];
+      currentPage: number;
+      totalCount: number;
+      totalPages: number;
+    }>("/investments/all");
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -34,6 +44,22 @@ export const getAllInvestments = async (): Promise<UserInvestment[]> => {
 export const claimInvestment = async (id: string): Promise<UserInvestment> => {
   try {
     const response = await api.get<UserInvestment>(`/investments/claim/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+export const boostInvestment = async (
+  id: string,
+  amount: string
+): Promise<UserInvestment> => {
+  try {
+    const response = await api.put<UserInvestment>(`/investments`, {
+      investmentId: id,
+      amount,
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);

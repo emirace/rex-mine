@@ -60,7 +60,7 @@ const Card: React.FC<CardProps> = ({
       <div className="w-full">
         <h4 className="text-white font-bold mb-2">Level {level}</h4>
         <p className="text-white mb-2 text-sm">
-          Amount require to purchase: {cost}
+          Amount require to purchase: {cost} TRX
         </p>
         <Button
           onClick={() => setShowModal(true)}

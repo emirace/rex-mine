@@ -139,11 +139,14 @@ export const getUserById = async (req: Request, res: Response) => {
     }
 
     // Fetch the user's transaction history
-    const transactions = await Transaction.find({ userId: id }).lean();
+    const transactions = await Transaction.find({ userId: id })
+      .sort({ createdAt: -1 })
+      .lean();
 
     // Fetch the user's investment history
     const investments = await UserInvestment.find({ userId: id })
       .populate("investmentLevel", "name") // Populate investment level details if needed
+      .sort({ createdAt: -1 })
       .lean();
 
     // Return user details along with transactions and investments
@@ -236,7 +239,6 @@ export const getUserHourlyReturnRate = async (
       return res.status(200).json({ hourlyReturnRate: 0 });
     }
     let totalHourlyReturnRate = 0;
-
     investments.forEach(
       (investment: {
         amount: number;

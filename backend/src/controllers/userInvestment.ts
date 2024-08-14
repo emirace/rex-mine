@@ -82,7 +82,8 @@ export const invest = async (req: AuthRequest, res: Response) => {
 
     const transaction = new Transaction({
       amount: amount,
-      type: "Deposit",
+      type: "Mining",
+      incoming: false,
       userId,
       status: "Completed",
     });
@@ -194,6 +195,16 @@ export const claimInvestment = async (req: AuthRequest, res: Response) => {
       investment.nextPaybackDate = nextPaybackDate;
       const resp = await investment.save({ session });
 
+      const transaction = new Transaction({
+        amount: dailyReturn,
+        type: "Mining",
+        incoming: true,
+        userId,
+        status: "Completed",
+      });
+
+      await transaction.save({ session });
+
       await session.commitTransaction();
       session.endSession();
 
@@ -206,6 +217,103 @@ export const claimInvestment = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error("Error claiming investment:", error);
     res.status(500).json({ error: "Unable to claim investment" });
+  }
+};
+
+export const boostUserInvestment = async (req: AuthRequest, res: Response) => {
+  const userId = req.user?._id;
+  const { investmentId, amount } = req.body;
+
+  if (!investmentId || !amount) {
+    return res.status(400).json({ error: "Investment Id and amount reqiured" });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const investment = await UserInvestment.findOne({
+      _id: investmentId,
+      userId,
+    })
+      .populate("investmentLevel")
+      .session(session);
+
+    if (!investment) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ error: "Investment not found" });
+    }
+
+    // Find the user
+    const user = await User.findById(userId).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check total available funds
+    const totalAvailable =
+      user.balance + user.miningBalance + user.promotionalBalance;
+
+    if (totalAvailable < amount) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "Insufficient funds" });
+    }
+
+    // Deduct from the user's balance first
+    let remainingAmount = amount;
+
+    if (user.balance >= remainingAmount) {
+      user.balance -= remainingAmount;
+      remainingAmount = 0;
+    } else {
+      remainingAmount -= user.balance;
+      user.balance = 0;
+    }
+
+    // If there's still an amount left, deduct from the mining balance
+    if (remainingAmount > 0) {
+      if (user.miningBalance >= remainingAmount) {
+        user.miningBalance -= remainingAmount;
+        remainingAmount = 0;
+      } else {
+        remainingAmount -= user.miningBalance;
+        user.miningBalance = 0;
+      }
+    }
+
+    // If there's still an amount left, deduct from the promotional balance
+    if (remainingAmount > 0) {
+      user.promotionalBalance -= remainingAmount;
+      remainingAmount = 0;
+    }
+
+    await user.save({ session });
+
+    const transaction = new Transaction({
+      amount: amount,
+      type: "Mining",
+      incoming: false,
+      userId,
+      status: "Completed",
+    });
+
+    await transaction.save({ session });
+
+    investment.amount += parseFloat(amount);
+    await investment.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json(investment);
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ error: "Error fetching user investment" });
   }
 };
 
@@ -265,7 +373,7 @@ export const getAllUserInvestments = async (req: Request, res: Response) => {
 
     // Fetch investments with filters, sorting, and pagination
     const investments = await UserInvestment.find(filters)
-      .populate("userId", "name")
+      .populate("userId", "username")
       .populate("investmentLevel", "name")
       .sort({ [sortField as string]: sortOrder === "asc" ? 1 : -1 })
       .skip(skip)

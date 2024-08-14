@@ -15,7 +15,7 @@ interface UserInvestmentCardProps {
 const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
   const { _id, amount, startDate, endDate, investmentLevel, isClaimable } =
     investment;
-  const { invest, claim } = useUserInvestment(); // Hook to handle investment actions
+  const { boost, claim } = useUserInvestment(); // Hook to handle investment actions
 
   const [showModal, setShowModal] = useState(false);
   const [newAmount, setNewAmount] = useState("");
@@ -23,11 +23,11 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
   const [loadingClaim, setLoadingClaim] = useState(false);
   const [error, setError] = useState("");
 
-  const handleInvest = async () => {
+  const handleBoost = async () => {
     setError("");
     try {
       setLoading(true);
-      await invest({ levelId: investment.investmentLevel, amount: newAmount });
+      await boost(investment._id, newAmount);
       setLoading(false);
       setShowModal(false);
     } catch (error: any) {
@@ -64,7 +64,10 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
     <div className="flex flex-col bg-gradient-to-r bg-opacity-70 from-primary to-[#103256] rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4">
       <div className="flex justify-between items-center">
         <h4 className="text-white font-bold">Level {investmentLevel.name}</h4>
-        <div className="flex items-center text-primary">
+        <div
+          className="flex items-center text-primary"
+          onClick={() => setShowModal(true)}
+        >
           <FaBolt />
           <span className="ml-2">Boost X1</span>
         </div>
@@ -102,10 +105,10 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <div className="p-4">
           <h4 className="text-white font-bold mb-2">
-            Level {investment.investmentLevel}
+            Level {investment.investmentLevel.name}
           </h4>
           <p className="text-white mb-2 text-sm">
-            Amount require to purchase: ${amount.toFixed(2)}
+            Boost your mining by an amount
           </p>
           <TextInput
             placeholder="Enter additional amount"
@@ -117,10 +120,10 @@ const InvestmentCard: React.FC<UserInvestmentCardProps> = ({ investment }) => {
           <Button
             loading={loading}
             disabled={loading}
-            onClick={handleInvest}
+            onClick={handleBoost}
             className="bg-primary text-white mt-4"
           >
-            Submit
+            Boost
           </Button>
         </div>
       </Modal>

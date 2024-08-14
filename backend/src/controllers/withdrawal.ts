@@ -76,6 +76,7 @@ export const createWithdrawalRequest = async (
     const transaction = new Transaction({
       amount: amount,
       type: "Withdrawal",
+      incoming: true,
       userId,
     });
     await transaction.save({ session });
