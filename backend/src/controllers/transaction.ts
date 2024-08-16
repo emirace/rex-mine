@@ -21,7 +21,9 @@ export const getUserTransactions = async (req: AuthRequest, res: Response) => {
 // Get all transactions (admin only)
 export const getAllTransactions = async (req: Request, res: Response) => {
   try {
-    const transactions = await Transaction.find().sort({ createdAt: -1 });
+    const transactions = await Transaction.find()
+      .populate("userId", "username")
+      .sort({ createdAt: -1 });
     res.status(200).json(transactions);
   } catch (error) {
     console.error("Error fetching all transactions:", error);

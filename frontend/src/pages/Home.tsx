@@ -49,7 +49,9 @@ const Home: React.FC = () => {
               onClick={getHourlyReturn}
             >
               <span className="text-white opacity-80">Speed :</span>
-              <span className="text-white font-bold">{hourlyRate} TRX/h</span>
+              <span className="text-white font-bold">
+                {hourlyRate.toFixed(4)} TRX/h
+              </span>
             </div>
           )}
         </div>
@@ -106,13 +108,13 @@ const Home: React.FC = () => {
         <div className="flex gap-3 items-center">
           <div className="w-full bg-black text-center text-white rounded-full py-4 px-6 mb-4 flex items-center justify-between">
             <span className="font-medium">
-              Mining Balance: {user?.miningBalance}TRX
+              Mining Balance: {user?.miningBalance.toFixed(2)}TRX
             </span>
             <div />
           </div>
           <div className="w-full bg-black text-white text-center rounded-full py-4 px-6 mb-4 flex items-center justify-between">
             <span className="font-medium">
-              Promotion Balance: {user?.promotionalBalance}TRX
+              Promotion Balance: {user?.promotionalBalance.toFixed(2)}TRX
             </span>
             <div />
           </div>

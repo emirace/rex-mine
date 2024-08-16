@@ -13,6 +13,7 @@ import {
   UserInvestment,
 } from "../services/userInvestment";
 import { useUser } from "./Auth";
+import { useTransaction } from "./Transaction";
 
 interface UserInvestmentContextType {
   userInvestments: UserInvestment[];
@@ -32,10 +33,15 @@ interface UserInvestmentProviderProps {
 export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
   children,
 }) => {
-  const { user } = useUser();
+  const { user, fetchCurrentUser } = useUser();
+  const { fetchUserTransactions } = useTransaction();
   const [userInvestments, setUserInvestments] = useState<UserInvestment[]>([]);
   const [isClaimable, setIsClaimable] = useState(false);
 
+  const refresh = async () => {
+    await fetchUserTransactions();
+    await fetchCurrentUser();
+  };
   const getAllInvestmentLevels = async () => {
     try {
       const userInvestments = await getUserInvestments();
@@ -49,6 +55,7 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
     try {
       const investmentLevel = await createInvestment(data);
       setUserInvestments((prev) => [...prev, investmentLevel]);
+      refresh();
     } catch (error) {
       console.error("Failed to fetch investment levels:", error);
       throw error;
@@ -63,6 +70,7 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
           investment._id === investmentRes._id ? investmentRes : investment
         )
       );
+      refresh();
     } catch (error) {
       console.error("Failed to claim investment:", error);
       throw error;
@@ -77,6 +85,7 @@ export const UserInvestmentProvider: React.FC<UserInvestmentProviderProps> = ({
           investment._id === investmentRes._id ? investmentRes : investment
         )
       );
+      refresh();
     } catch (error) {
       console.error("Failed to claim investment:", error);
       throw error;

@@ -23,7 +23,7 @@ const carouselImages = [
     caption: "Secure Transactions",
     subCaption:
       "REX-MINE ensures the highest level of security for all transactions. Enjoy peace of mind knowing that your funds and personal information are protected with advanced encryption and security protocols.",
-    img: "/images/slide1.jpeg",
+    img: "/images/slide4.jpeg",
   },
   {
     caption: "User-Friendly Interface",
@@ -60,7 +60,7 @@ const Carousel = () => {
               alt={`Slide ${index + 1}`}
               className="w-full h-full object-cover rounded-3xl"
             />
-            <div className="absolute top-4 left-4 text-white bg-black bg-opacity-20 p-2 rounded-md">
+            <div className="absolute top-4 left-4 text-white bg-black bg-opacity-30 p-2 rounded-md">
               <h2 className="text-lg font-bold drop-shadow-md">
                 {image.caption}
               </h2>

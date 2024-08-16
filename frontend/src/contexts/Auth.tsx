@@ -28,6 +28,7 @@ interface UserContextType {
   allUsers: User[];
   loading: boolean;
   fetchUsers: () => Promise<void>;
+  fetchCurrentUser: () => Promise<void>;
   fetchUserById: (id: string) => Promise<{
     user: User;
     transactions: Transaction[];
@@ -70,15 +71,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const fetchCurrentUser = async () => {
     try {
-      setLoading(true);
-      console.log("hello");
       const currentUser = await getCurrentUser();
-      console.log("hello2");
       setUser(currentUser);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       console.error("Failed to fetch current user:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,6 +182,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
+      setLoading(true);
       fetchCurrentUser();
     } else {
       setLoading(false);
@@ -197,6 +196,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         allUsers,
         loading,
         createTxnCode,
+        fetchCurrentUser,
         fetchUsers,
         fetchUserById,
         login,

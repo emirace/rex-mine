@@ -13,13 +13,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <UserProvider>
       <InvestmentLevelProvider>
-        <UserInvestmentProvider>
-          <TransactionProvider>
+        <TransactionProvider>
+          <UserInvestmentProvider>
             <WithdrawalProvider>
               <RouterProvider router={router} />
             </WithdrawalProvider>
-          </TransactionProvider>
-        </UserInvestmentProvider>
+          </UserInvestmentProvider>
+        </TransactionProvider>
       </InvestmentLevelProvider>
     </UserProvider>
   </React.StrictMode>

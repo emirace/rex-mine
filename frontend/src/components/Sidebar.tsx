@@ -4,7 +4,7 @@ import { LuShare2 } from "react-icons/lu";
 import { RiHomeLine } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
 import { CiUser } from "react-icons/ci";
-import { PiHandDeposit, PiHandWithdraw } from "react-icons/pi";
+import { PiHandDeposit, PiHandWithdraw, PiMoney } from "react-icons/pi";
 import { useUser } from "../contexts/Auth";
 
 const navbarLinks = [
@@ -46,6 +46,11 @@ const adminNavbarLinks = [
     path: "/admin/investments",
     text: "Investments",
     icon: <PiHandDeposit size={24} />,
+  },
+  {
+    path: "/admin/transactions",
+    text: "Transactions",
+    icon: <PiMoney size={24} />,
   },
 ];
 
