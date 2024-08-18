@@ -1,7 +1,13 @@
 // src/components/Invite.tsx
 
 import React, { useEffect, useState } from "react";
-import { FaFacebook, FaRegCopy, FaTelegram, FaXTwitter } from "react-icons/fa6";
+import {
+  FaArrowTurnDown,
+  FaFacebook,
+  FaRegCopy,
+  FaTelegram,
+  FaXTwitter,
+} from "react-icons/fa6";
 import { IoMdArrowForward } from "react-icons/io";
 import { IoLogoWhatsapp } from "react-icons/io5";
 import { LuShare2 } from "react-icons/lu";
@@ -9,6 +15,13 @@ import { useUser } from "../contexts/Auth";
 import { ImSpinner9 } from "react-icons/im";
 import { getReferrals } from "../services/user";
 import Loading from "../components/Loading";
+import api from "../services/api";
+
+export interface Referral {
+  username: string;
+  level: number;
+  referrals?: Referral[]; // Nested referrals for Level 2
+}
 
 const Invite: React.FC = () => {
   const { user, addReffererCode } = useUser();
@@ -20,6 +33,8 @@ const Invite: React.FC = () => {
   >([]);
   const [loadingReferrals, setLoadingReferrals] = useState(true);
   const [errorReferrals, setErrorReferrals] = useState("");
+  const [referralTreeType, setReferralTreeType] = useState("Bonus");
+  const [referralTree, setReferralTree] = useState<Referral[]>([]);
 
   useEffect(() => {
     const fetchReferrals = async () => {
@@ -36,6 +51,21 @@ const Invite: React.FC = () => {
     };
 
     fetchReferrals();
+  }, []);
+
+  useEffect(() => {
+    const fetchReferralTree = async () => {
+      try {
+        const response = await api.get<Referral[]>(`/users/referral-tree`);
+        setReferralTree(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load referral data");
+        setLoading(false);
+      }
+    };
+
+    fetchReferralTree();
   }, []);
 
   const shareText = `Join me and get rewards using my referral code: ${user?.referralCode}`;
@@ -216,38 +246,86 @@ const Invite: React.FC = () => {
         <p id="teams" className="font-medium text-xl mt-6 mb-4 ">
           My Team
         </p>
-        <div className="bg-secondary rounded-lg p-4 text-white shadow-md">
-          {loadingReferrals ? (
-            <Loading />
-          ) : errorReferrals ? (
-            <p>{errorReferrals}</p>
-          ) : referrals.length > 0 ? (
-            <ul className="space-y-4">
-              {referrals.map((referral) => (
-                <li
-                  key={referral.username}
-                  className="flex justify-between items-center border-b border-gray-600 pb-2"
-                >
-                  <div>
-                    <p className="font-semibold capitalize">
-                      {referral.fullName}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      @{referral.username}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-green-500 font-semibold">
-                      ${referral.bonusAmount.toFixed(2)}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-400">No referrals found.</p>
-          )}
+
+        <div className="flex items-center text-white font-medium min-h-14 mb-4 border border-white rounded-full p-2 ">
+          <div
+            onClick={() => setReferralTreeType("Bonus")}
+            className={`flex-1 text-center transition-all ${
+              referralTreeType === "Bonus" && "bg-primary p-2 rounded-full "
+            }`}
+          >
+            Bonus
+          </div>
+          <div
+            onClick={() => setReferralTreeType("Tree")}
+            className={`flex-1 text-center transition-all ${
+              referralTreeType === "Tree" && "bg-primary p-2 rounded-full "
+            }`}
+          >
+            Tree
+          </div>
         </div>
+        {referralTreeType === "Bonus" && (
+          <div className="bg-secondary rounded-lg p-4 text-white shadow-md">
+            {loadingReferrals ? (
+              <Loading />
+            ) : errorReferrals ? (
+              <p>{errorReferrals}</p>
+            ) : referrals.length > 0 ? (
+              <ul className="space-y-4">
+                {referrals.map((referral) => (
+                  <li
+                    key={referral.username}
+                    className="flex justify-between items-center border-b border-gray-600 pb-2"
+                  >
+                    <div>
+                      <p className="font-semibold capitalize">
+                        {referral.fullName}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        @{referral.username}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-green-500 font-semibold">
+                        ${referral.bonusAmount.toFixed(2)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400">No referrals bonus.</p>
+            )}
+          </div>
+        )}
+        {referralTreeType === "Tree" && (
+          <div className="p-4 bg-secondary  text-white shadow rounded">
+            {referralTree?.length ? (
+              <ul className="space-y-4">
+                {referralTree.map((level1User, index) => (
+                  <li key={index}>
+                    <div className="flex items-center gap-4">
+                      <p className="font-medium">{level1User.username}</p>
+                      <FaArrowTurnDown />
+                    </div>
+                    {level1User.referrals?.length ? (
+                      <ul className="pl-6 list-disc">
+                        {level1User.referrals.map((level2User, index) => (
+                          <li key={index}>{level2User.username} (Level 2)</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm pl-6 ">No Level 2 referrals.</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No Level 1 referrals.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import {
   claimPromotionBalance,
   addReferrer,
   getReferralBonuses,
+  getReferralTree,
 } from "../controllers/user";
 import { auth } from "../middleware/auth";
 
@@ -21,6 +22,7 @@ router.get("/", auth("Admin"), getUsers);
 router.get("/getUser", auth(), getUser);
 router.get("/hourly", auth(), getUserHourlyReturnRate);
 router.get("/referrals", auth(), getReferralBonuses);
+router.get("/referral-tree", auth(), getReferralTree);
 router.get("/:id", auth("Admin"), getUserById);
 router.post("/login", loginUser);
 router.post("/register", registerUser);

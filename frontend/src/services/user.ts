@@ -183,3 +183,13 @@ export const getReferrals = async () => {
     throw error;
   }
 };
+
+export const getReferralsTree = async () => {
+  try {
+    const response = await api.get(`/users/referral-tree`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching referrals:", error);
+    throw error;
+  }
+};

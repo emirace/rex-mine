@@ -372,3 +372,38 @@ export const getReferralBonuses = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: "Error fetching referral bonuses" });
   }
 };
+
+export const getReferralTree = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    // Find all users directly referred by the user (Level 1)
+    const level1Users = await User.find({ invitedBy: userId }).select(
+      "username _id"
+    );
+
+    // Prepare the response structure
+    const referralTree = await Promise.all(
+      level1Users.map(async (level1User) => {
+        // Find all users referred by this Level 1 user (Level 2)
+        const level2Users = await User.find({
+          invitedBy: level1User._id,
+        }).select("username");
+        return {
+          username: level1User.username,
+          level: 1,
+          referrals: level2Users.map((user) => ({
+            username: user.username,
+            level: 2,
+          })),
+        };
+      })
+    );
+
+    res.status(200).json(referralTree);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the referral tree." });
+  }
+};
