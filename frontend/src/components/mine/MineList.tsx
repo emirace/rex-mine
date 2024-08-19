@@ -58,6 +58,7 @@ function MineList() {
             days={`${level.validDays}`}
             payback={`${level.paybackCycleDays}`}
             level={level.name}
+            percentage={level.percentage}
             minAmount={level.minAmount}
             cost={`${level.minAmount} - ${level.maxAmount}`}
           />

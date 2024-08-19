@@ -12,6 +12,7 @@ interface CardProps {
   cost: string;
   minAmount: number;
   payback: string;
+  percentage: number;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -21,6 +22,7 @@ const Card: React.FC<CardProps> = ({
   level,
   cost,
   payback,
+  percentage,
 }) => {
   const { invest } = useUserInvestment();
   const [showModal, setShowModal] = useState(false);
@@ -72,6 +74,9 @@ const Card: React.FC<CardProps> = ({
         <div className="flex justify-between mb-2 text-sm font-medium items-center w-full text-white">
           <div className="">
             <span className="opacity-80">Valid days:</span> {days}
+          </div>{" "}
+          <div className="">
+            <span className="opacity-80">Reward:</span> {percentage}%
           </div>
           <div className="">
             <span className="opacity-80">Payback Cycle:</span> {payback}
