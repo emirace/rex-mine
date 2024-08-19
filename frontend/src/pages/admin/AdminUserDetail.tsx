@@ -79,7 +79,7 @@ const AdminUserDetail = () => {
             </p>
             <p className="text-lg text-white">
               <strong>Unclaim Promotional Balance:</strong>
-              {user.tempPromotionalBalance.toFixed(2)}TRX
+              {(user.tempPromotionalBalance || 0).toFixed(2)}TRX
             </p>
           </div>
 
