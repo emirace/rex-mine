@@ -9,11 +9,16 @@ const Users = () => {
   const { fetchUsers, allUsers: users } = useUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
+    const timers: any = [];
     const getUsers = async () => {
       try {
-        await fetchUsers();
+        const timer = setTimeout(async () => {
+          await fetchUsers(search);
+        }, 300); // 300ms delay
+        timers.push(timer);
       } catch (error) {
         setError("Failed to fetch users");
       } finally {
@@ -22,7 +27,11 @@ const Users = () => {
     };
 
     getUsers();
-  }, []);
+
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, [search]);
 
   if (loading) {
     return (
@@ -43,6 +52,12 @@ const Users = () => {
   return (
     <div className="p-6 text-white">
       <h2 className="text-3xl font-bold  mb-6">User List</h2>
+      <input
+        className="border rounded-full w-fill bg-transparent p-1 px-4 mb-4"
+        placeholder="Search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
       {users.length === 0 ? (
         <p className="text-lg ">No users found</p>
       ) : (

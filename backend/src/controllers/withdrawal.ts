@@ -63,23 +63,24 @@ export const createWithdrawalRequest = async (
 
     await user.save({ session });
 
+    const transaction = new Transaction({
+      amount: amount,
+      type: "Withdrawal",
+      incoming: false,
+      userId,
+    });
+    const newTransaction = await transaction.save({ session });
+
     // Create a new withdrawal request
     const newWithdrawal = new Withdrawal({
       userId,
+      transactionId: newTransaction._id,
       amount,
       cryptoAddress,
     });
 
     // Save the withdrawal request to the database
     await newWithdrawal.save({ session });
-
-    const transaction = new Transaction({
-      amount: amount,
-      type: "Withdrawal",
-      incoming: true,
-      userId,
-    });
-    await transaction.save({ session });
 
     await session.commitTransaction();
     session.endSession();
@@ -121,6 +122,13 @@ export const updateWithdrawalStatus = async (req: Request, res: Response) => {
     if (!withdrawal) {
       return res.status(404).json({ message: "Withdrawal request not found" });
     }
+
+    const transcation = await Transaction.findById(withdrawal.transactionId);
+    if (!transcation) {
+      return res.status(404).json({ message: "Transactions not found" });
+    }
+    transcation.status = status === "Approved" ? "Completed" : "Failed";
+    await transcation.save();
 
     withdrawal.status = status;
     await withdrawal.save();

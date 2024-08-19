@@ -27,7 +27,7 @@ interface UserContextType {
   user: User | null;
   allUsers: User[];
   loading: boolean;
-  fetchUsers: () => Promise<void>;
+  fetchUsers: (search: string) => Promise<void>;
   fetchCurrentUser: () => Promise<void>;
   fetchUserById: (id: string) => Promise<{
     user: User;
@@ -60,9 +60,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (search: string) => {
     try {
-      const users = await getUsers();
+      const users = await getUsers(search);
       setAllUsers(users);
     } catch (error) {
       console.error("Failed to fetch users:", error);
@@ -145,7 +145,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const claimPromotion = async () => {
     try {
       await claimPromotionBalance();
-      setUser((prev) => ({ ...prev, promotionalBalance: 0 } as User | null));
+      fetchCurrentUser();
     } catch (error) {
       throw error;
     }

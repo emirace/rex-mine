@@ -7,10 +7,12 @@ import Transaction from "../models/transaction";
 import mongoose from "mongoose";
 
 // User invests in a plan
+
 export const invest = async (req: AuthRequest, res: Response) => {
   const { levelId, amount } = req.body;
   const userId = req.user?._id;
 
+  // Start a new session for the transaction
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -18,107 +20,149 @@ export const invest = async (req: AuthRequest, res: Response) => {
     // Find the investment level
     const level = await InvestmentLevel.findById(levelId).session(session);
     if (!level) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(404).json({ message: "Investment level not found" });
+      throw new Error("Investment level not found");
     }
 
-    // Check if the amount is within the valid range
+    // Validate the investment amount
     if (amount < level.minAmount || amount > level.maxAmount) {
-      await session.abortTransaction();
-      session.endSession();
-      return res
-        .status(400)
-        .json({ message: "Investment amount is out of range" });
+      throw new Error("Investment amount is out of range");
     }
 
-    // Find the user
-    const user = await User.findById(userId).session(session);
+    // Find the user and populate the invitedBy chain
+    const user: any = await User.findById(userId)
+      .populate({
+        path: "invitedBy",
+        select: "invitedBy",
+      })
+      .session(session);
     if (!user) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(404).json({ message: "User not found" });
+      throw new Error("User not found");
     }
 
-    // Check total available funds
+    // Calculate total available funds and validate
     const totalAvailable =
       user.balance + user.miningBalance + user.promotionalBalance;
 
     if (totalAvailable < amount) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({ message: "Insufficient funds" });
+      throw new Error("Insufficient funds");
     }
 
-    // Deduct from the user's balance first
+    // Deduct funds in the order: balance, miningBalance, promotionalBalance
+    const balanceDeductions = [
+      { key: "balance", amount: user.balance },
+      { key: "miningBalance", amount: user.miningBalance },
+      { key: "promotionalBalance", amount: user.promotionalBalance },
+    ];
+
     let remainingAmount = amount;
-
-    if (user.balance >= remainingAmount) {
-      user.balance -= remainingAmount;
-      remainingAmount = 0;
-    } else {
-      remainingAmount -= user.balance;
-      user.balance = 0;
-    }
-
-    // If there's still an amount left, deduct from the mining balance
-    if (remainingAmount > 0) {
-      if (user.miningBalance >= remainingAmount) {
-        user.miningBalance -= remainingAmount;
-        remainingAmount = 0;
-      } else {
-        remainingAmount -= user.miningBalance;
-        user.miningBalance = 0;
-      }
-    }
-
-    // If there's still an amount left, deduct from the promotional balance
-    if (remainingAmount > 0) {
-      user.promotionalBalance -= remainingAmount;
-      remainingAmount = 0;
+    for (const { key, amount: availableAmount } of balanceDeductions) {
+      if (remainingAmount <= 0) break;
+      const deduction = Math.min(availableAmount, remainingAmount);
+      user[key] -= deduction;
+      remainingAmount -= deduction;
     }
 
     await user.save({ session });
 
-    const transaction = new Transaction({
-      amount: amount,
-      type: "Mining",
-      incoming: false,
-      userId,
-      status: "Completed",
-    });
+    // Create the transaction record
+    await Transaction.create(
+      [
+        {
+          amount,
+          type: "Mining",
+          incoming: false,
+          userId,
+          status: "Completed",
+        },
+      ],
+      { session }
+    );
 
-    await transaction.save({ session });
+    // Handle referral bonuses if applicable
+    const referralBonuses = [];
+    if (user.invitedBy) {
+      referralBonuses.push(
+        User.findByIdAndUpdate(
+          user.invitedBy._id,
+          { $inc: { tempPromotionalBalance: amount * 0.07 } },
+          { session }
+        ),
+        Transaction.create(
+          [
+            {
+              amount: amount * 0.07,
+              type: "ReferralBonus",
+              referred: user._id,
+              incoming: true,
+              status: "Completed",
+              userId: user.invitedBy._id,
+            },
+          ],
+          { session }
+        )
+      );
 
-    // Calculate start date, end date, and next payback date
+      if (user.invitedBy.invitedBy) {
+        referralBonuses.push(
+          User.findByIdAndUpdate(
+            user.invitedBy.invitedBy,
+            { $inc: { tempPromotionalBalance: amount * 0.03 } },
+            { session }
+          ),
+          Transaction.create(
+            [
+              {
+                amount: amount * 0.03,
+                type: "ReferralBonus",
+                referred: user._id,
+                incoming: true,
+                status: "Completed",
+                userId: user.invitedBy.invitedBy,
+              },
+            ],
+            { session }
+          )
+        );
+      }
+    }
+    await Promise.all(referralBonuses);
+
+    // Calculate dates for the investment
     const startDate = new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + level.validDays); // Set the end date
+    endDate.setDate(endDate.getDate() + level.validDays);
     const nextPaybackDate = new Date(startDate);
     nextPaybackDate.setDate(nextPaybackDate.getDate() + 1);
 
-    // Create a new user investment
-    const userInvestment = new UserInvestment({
-      userId,
-      investmentLevel: level._id,
-      amount,
-      startDate,
-      endDate, // Save the end date
-      nextPaybackDate,
-    });
+    // Create and save the user investment
+    const userInvestment = await UserInvestment.create(
+      [
+        {
+          userId,
+          investmentLevel: level._id,
+          amount,
+          startDate,
+          endDate,
+          nextPaybackDate,
+        },
+      ],
+      { session }
+    );
 
-    await userInvestment.save({ session });
-
+    // Commit the transaction and end the session
     await session.commitTransaction();
-    session.endSession();
-
-    res
-      .status(201)
-      .json({ message: "Investment successful", investment: userInvestment });
-  } catch (error) {
+    res.status(201).json({
+      message: "Investment successful",
+      investment: userInvestment,
+    });
+  } catch (error: any) {
+    // Roll back the transaction in case of error
     await session.abortTransaction();
+    res
+      .status(500)
+      .json({ error: error.message || "Error processing investment" });
+  } finally {
     session.endSession();
-    res.status(500).json({ error: "Error processing investment" });
   }
 };
 
@@ -141,9 +185,9 @@ export const processInvestments = async () => {
       const dailyReturn = (investment.amount * level.percentage) / 100;
 
       // Update user's mining balance
-      await User.findByIdAndUpdate(investment.userId, {
-        $inc: { miningBalance: dailyReturn },
-      });
+      // await User.findByIdAndUpdate(investment.userId, {
+      //   $inc: { miningBalance: dailyReturn },
+      // });
 
       // Update next payback date
 

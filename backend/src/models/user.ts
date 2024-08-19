@@ -13,6 +13,7 @@ export interface User extends Document {
   balance: number;
   miningBalance: number;
   promotionalBalance: number;
+  tempPromotionalBalance: number;
   transactionCode?: string;
   hasTransactionCode: boolean;
 }
@@ -29,6 +30,7 @@ const UserSchema: Schema = new Schema(
     balance: { type: Number, default: 0 },
     miningBalance: { type: Number, default: 0 },
     promotionalBalance: { type: Number, default: 0 },
+    tempPromotionalBalance: { type: Number, default: 0 },
     transactionCode: { type: String },
     hasTransactionCode: { type: Boolean, default: false },
   },

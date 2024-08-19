@@ -7,6 +7,7 @@ import {
   updateWithdrawal,
   Withdrawal,
 } from "../services/withdrawal";
+import { useUser } from "./Auth";
 
 interface WithdrawalContextProps {
   withdrawals: Withdrawal[];
@@ -28,12 +29,14 @@ export const WithdrawalProvider: React.FC<{ children: React.ReactNode }> = ({
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { fetchCurrentUser } = useUser();
 
   const createWithdrawal = async (data: WithdrawalData) => {
     try {
       setLoading(true);
       const response = await withdrawal(data);
       setWithdrawals((prev) => [...prev, response.withdrawal]);
+      fetchCurrentUser();
     } catch (err) {
       setError("Error creating withdrawal");
       console.error(err);

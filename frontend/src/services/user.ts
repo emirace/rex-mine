@@ -13,6 +13,7 @@ export interface User {
   miningBalance: number;
   role: string;
   promotionalBalance: number;
+  tempPromotionalBalance: number;
   hasTransactionCode: boolean;
   referralCode: string;
   invitedBy: string;
@@ -30,9 +31,9 @@ export interface RegisterResponse {
 }
 
 // Fetch all users (Admin only)
-export const getUsers = async (): Promise<User[]> => {
+export const getUsers = async (search: string): Promise<User[]> => {
   try {
-    const response = await api.get<User[]>("/users");
+    const response = await api.get<User[]>(`/users?search=${search}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);

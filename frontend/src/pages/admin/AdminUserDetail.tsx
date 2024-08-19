@@ -77,6 +77,10 @@ const AdminUserDetail = () => {
               <strong>Promotional Balance:</strong>
               {user.promotionalBalance.toFixed(2)}TRX
             </p>
+            <p className="text-lg text-white">
+              <strong>Unclaim Promotional Balance:</strong>
+              {user.tempPromotionalBalance.toFixed(2)}TRX
+            </p>
           </div>
 
           <div className="mb-6">

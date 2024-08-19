@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface Withdrawal extends Document {
   userId: mongoose.Schema.Types.ObjectId;
+  transactionId: mongoose.Schema.Types.ObjectId;
   amount: number;
   cryptoAddress: string;
   status: "Pending" | "Approved" | "Rejected";
@@ -12,6 +13,7 @@ export interface Withdrawal extends Document {
 const WithdrawalSchema: Schema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    transactionId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     amount: { type: Number, required: true },
     cryptoAddress: { type: String, required: true },
     status: {

@@ -72,11 +72,11 @@ export const createInvestment = async (data: {
   amount: string;
 }): Promise<UserInvestment> => {
   try {
-    const response = await api.post<{ level: UserInvestment }>(
+    const response = await api.post<{ investment: UserInvestment }>(
       "/investments/invest",
       data
     );
-    return response.data.level;
+    return response.data.investment;
   } catch (error) {
     console.error("Error registering user:", error);
     throw error;

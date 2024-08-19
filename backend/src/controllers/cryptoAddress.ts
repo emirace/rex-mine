@@ -111,46 +111,23 @@ export const coinpaymentIpn = async (req: Request, res: Response) => {
           }),
         ];
 
-        // Add update users referrer query to promises array
-        if (cryptoAddress.userId.invitedBy) {
-          promises.push(
-            User.findByIdAndUpdate(
-              cryptoAddress.userId.invitedBy._id,
-              {
-                $inc: { promotionalBalance: amount * 0.07 },
-              },
-              {}
-            ),
-            Transaction.create({
-              amount: amount * 0.07,
-              type: "ReferralBonus",
-              reffered: cryptoAddress.userId._id,
-              incoming: true,
-              status: "Completed",
-              userId: cryptoAddress.userId.invitedBy._id,
-            })
-          );
-
-          if (cryptoAddress.userId.invitedBy.invitedBy) {
-            promises.push(
-              User.findByIdAndUpdate(
-                cryptoAddress.userId.invitedBy.invitedBy,
-                {
-                  $inc: { promotionalBalance: amount * 0.03 },
-                },
-                {}
-              ),
-              Transaction.create({
-                amount: amount * 0.03,
-                type: "ReferralBonus",
-                referred: cryptoAddress.userId._id,
-                incoming: true,
-                status: "Completed",
-                userId: cryptoAddress.userId.invitedBy.invitedBy,
-              })
-            );
-          }
-        }
+        // Deposit bonus
+        promises.push(
+          User.findByIdAndUpdate(
+            cryptoAddress.userId._id,
+            {
+              $inc: { balance: amount * 0.1 },
+            },
+            {}
+          ),
+          Transaction.create({
+            amount: amount * 0.1,
+            type: "DepositBonus",
+            incoming: true,
+            status: "Completed",
+            userId: cryptoAddress.userId._id,
+          })
+        );
 
         // Execute promises array queries
         const result = await Promise.all(promises);

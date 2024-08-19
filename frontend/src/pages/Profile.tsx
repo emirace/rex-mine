@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
       </div>
       <div className="flex items-center justify-between rounded-full bg-secondary py-2 px-4 ">
         <div className="text-white text-lg">
-          Promotion Balane: {user?.promotionalBalance} TRX
+          Promotion Balane: {user?.tempPromotionalBalance.toFixed(2)} TRX
         </div>
         <button
           disabled={loadingPromotion}
@@ -121,7 +121,7 @@ const Profile: React.FC = () => {
                       {transaction.type}
                     </p>
                     <p className="text-sm text-gray-400">
-                      {moment(transaction.createdAt).format("")}
+                      {moment(transaction.createdAt).calendar()}
                     </p>
                   </div>
                   <div>
@@ -133,7 +133,7 @@ const Profile: React.FC = () => {
                       } font-semibold`}
                     >
                       {!transaction.incoming ? "-" : "+"}
-                      {transaction.amount} TRX
+                      {transaction.amount.toFixed(2)} TRX
                     </p>
                     <p className="text-sm text-gray-400">
                       {transaction.status}

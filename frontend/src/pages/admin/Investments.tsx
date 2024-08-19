@@ -36,7 +36,7 @@ const Investments: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span className="font-medium">Amount:</span>
-                <span>${investment.amount}</span>
+                <span>{investment.amount} TRX</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="font-medium">Start Date:</span>

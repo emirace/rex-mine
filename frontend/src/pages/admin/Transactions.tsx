@@ -54,7 +54,7 @@ const Transactions = () => {
                   </Link>
                   <p className="font-semibold capitalize">{transaction.type}</p>
                   <p className="text-sm text-gray-400">
-                    {moment(transaction.createdAt).format("")}
+                    {moment(transaction.createdAt).calendar()}
                   </p>
                 </div>
                 <div>
@@ -64,7 +64,7 @@ const Transactions = () => {
                     } font-semibold`}
                   >
                     {!transaction.incoming ? "-" : "+"}
-                    {transaction.amount} TRX
+                    {transaction.amount.toFixed(2)} TRX
                   </p>
                   <p className="text-sm text-gray-400">{transaction.status}</p>
                 </div>

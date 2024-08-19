@@ -24,8 +24,11 @@ const WithdrawalRequest: React.FC = () => {
       setErrorMessage("Please enter a valid amount.");
       return;
     }
-
-    if (amountValue > (user?.balance ? user?.balance : 0)) {
+    console.log(amountValue, user?.balance);
+    if (
+      amountValue >
+      (user?.miningBalance || 0) + (user?.promotionalBalance || 0)
+    ) {
       setErrorMessage("Insufficient balance.");
       return;
     }
@@ -78,7 +81,9 @@ const WithdrawalRequest: React.FC = () => {
           </label>
           <p className="text-xs mb-1 text-white">
             Withdrawal Amount(Mining + promotionL Balance) ={" "}
-            {(user?.miningBalance || 0) + (user?.promotionalBalance || 0)}
+            {(
+              (user?.miningBalance || 0) + (user?.promotionalBalance || 0)
+            ).toFixed(2)}
           </p>
           <input
             type="number"

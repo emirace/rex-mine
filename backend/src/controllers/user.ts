@@ -118,10 +118,25 @@ export const createTransactionCode = async (
   }
 };
 
-// Get all users
+// Get all users with a general search query
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find();
+    const { search } = req.query;
+
+    // Build a search query if a search string is provided
+    const searchQuery = search
+      ? {
+          $or: [
+            { username: { $regex: search, $options: "i" } },
+            { fullName: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // Find users based on the search query
+    const users = await User.find(searchQuery);
+
+    // Return the filtered users
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: "Error fetching users" });
@@ -275,15 +290,15 @@ export const claimPromotionBalance = async (
     }
 
     // Check if the user has any promotional balance
-    if (user.promotionalBalance <= 0) {
+    if (user.tempPromotionalBalance <= 0) {
       return res
         .status(400)
         .json({ message: "No promotional balance to claim" });
     }
 
     // Transfer promotional balance to main balance
-    user.balance += user.promotionalBalance;
-    user.promotionalBalance = 0; // Reset promotional balance
+    user.promotionalBalance += user.tempPromotionalBalance;
+    user.tempPromotionalBalance = 0; // Reset promotional balance
 
     // Save the updated user
     await user.save();
@@ -316,11 +331,13 @@ export const addReferrer = async (req: AuthRequest, res: Response) => {
     }
 
     // Find the referrer by referral code
-    const referrer = await User.findOne({ referralCode });
+    const referrer: any = await User.findOne({ referralCode });
     if (!referrer) {
       return res.status(404).json({ message: "Invalid referrer code " });
     }
-
+    if (referrer._id.toString() === user._id.toString()) {
+      return res.status(404).json({ message: "You can't invite yourself" });
+    }
     // Update the user's invitedBy field
     user.invitedBy = referrer._id;
     await user.save();
@@ -339,33 +356,70 @@ export const getReferralBonuses = async (req: AuthRequest, res: Response) => {
   const userId = req.user?._id;
 
   try {
-    // Find all transactions where the current user received a referral bonus
-    const referralBonuses: any = await Transaction.find({
+    // Fetch referral bonuses and map them
+    const referralBonuses = await Transaction.find({
       userId,
       type: "ReferralBonus",
     })
-      .populate("referred", "fullName username")
+      .populate("referred", "username")
       .lean();
 
-    if (!referralBonuses.length) {
-      return res.status(200).json({
-        message: "No referral bonuses found",
-        referrals: [],
-      });
-    }
+    const referrals = referralBonuses.map((bonus: any) => ({
+      username: bonus.referred.username,
+      level: 0,
+      bonusAmount: bonus.amount,
+    }));
 
-    // Map the referral bonuses to include the referred user details and the bonus amount
-    const referrals = referralBonuses.map(
-      (bonus: { referred: { fullName: any; username: any }; amount: any }) => ({
-        fullName: bonus.referred.fullName,
-        username: bonus.referred.username,
-        bonusAmount: bonus.amount,
-      })
+    // Fetch Level 1 users
+    const level1Users = await User.find({ invitedBy: userId }).select(
+      "username"
+    );
+    const level1UserIds = level1Users.map((user) => user._id);
+
+    // Fetch Level 2 users
+    const level2Users = await User.find({
+      invitedBy: { $in: level1UserIds },
+    }).select("username");
+
+    // Initialize a map to track unique usernames and their details
+    const mergedUsers = new Map<
+      string,
+      { username: string; level: number; bonusAmount?: number }
+    >();
+
+    // Helper function to add or update users in the map
+    const addOrUpdateUser = (user: {
+      username: string;
+      level: number;
+      bonusAmount?: number;
+    }) => {
+      if (!mergedUsers.has(user.username)) {
+        mergedUsers.set(user.username, user);
+      } else {
+        const existingUser = mergedUsers.get(user.username)!;
+        existingUser.level = Math.max(existingUser.level, user.level); // Keep the highest priority level
+        if (user.bonusAmount !== undefined) {
+          existingUser.bonusAmount = user.bonusAmount; // Update bonus amount if present
+        }
+      }
+    };
+
+    // Add all users to the map
+    referrals.forEach(addOrUpdateUser);
+    level1Users.forEach((user) =>
+      addOrUpdateUser({ username: user.username, level: 1 })
+    );
+    level2Users.forEach((user) =>
+      addOrUpdateUser({ username: user.username, level: 2 })
     );
 
+    // Convert the map back to an array
+    const allReferrals = Array.from(mergedUsers.values());
+
+    // Return the combined array
     res.status(200).json({
-      message: "Referral bonuses retrieved successfully",
-      referrals,
+      message: "Referral bonuses and levels fetched successfully",
+      referrals: allReferrals,
     });
   } catch (error) {
     console.error("Error fetching referral bonuses:", error);
