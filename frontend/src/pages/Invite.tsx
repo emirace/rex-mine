@@ -39,7 +39,7 @@ const Invite: React.FC = () => {
   }, []);
 
   const shareText = `Join me and get rewards using my referral code: ${user?.referralCode}`;
-  const website = "https://www.rex-mine.com";
+  const website = "https://www.rexmine.com";
   // Share on Facebook
   const shareOnFacebook = () => {
     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
