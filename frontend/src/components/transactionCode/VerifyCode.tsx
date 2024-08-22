@@ -51,7 +51,7 @@ const VerifyCode: React.FC<VerificationCodeProps> = ({ transactionCode }) => {
       }
 
       await createTxnCode({ transactionCode });
-      navigate("/");
+      navigate("/home");
     } catch (error: any) {
       setError(error.message);
     } finally {

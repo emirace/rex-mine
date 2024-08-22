@@ -14,6 +14,8 @@ const AdminUserDetail = () => {
   const [user, setUser] = useState<User | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [investments, setInvestments] = useState<UserInvestment[]>([]);
+  const [totalReferrals, setTotalReferrals] = useState(0);
+  const [totalReferralDeposits, setTotalReferralDeposits] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,6 +27,8 @@ const AdminUserDetail = () => {
         setUser(userData.user);
         setTransactions(userData.transactions);
         setInvestments(userData.investments);
+        setTotalReferrals(userData.totalReferrals);
+        setTotalReferralDeposits(userData.totalReferralDeposits);
       } catch (error) {
         setError("Failed to fetch user details");
       } finally {
@@ -74,12 +78,20 @@ const AdminUserDetail = () => {
               TRX
             </p>
             <p className="text-lg text-white">
-              <strong>Promotional Balance:</strong>
+              <strong>Promotional Balance: </strong>
               {user.promotionalBalance.toFixed(2)}TRX
             </p>
             <p className="text-lg text-white">
-              <strong>Unclaim Promotional Balance:</strong>
+              <strong>Unclaim Promotional Balance: </strong>
               {(user.tempPromotionalBalance || 0).toFixed(2)}TRX
+            </p>
+            <p className="text-lg text-white">
+              <strong>Total Referrals: </strong>
+              {totalReferrals}
+            </p>
+            <p className="text-lg text-white">
+              <strong>Total Referral Deposits: </strong>
+              {totalReferralDeposits}
             </p>
           </div>
 

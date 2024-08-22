@@ -33,6 +33,8 @@ interface UserContextType {
     user: User;
     transactions: Transaction[];
     investments: UserInvestment[];
+    totalReferrals: number;
+    totalReferralDeposits: number;
   }>;
   login: (data: { username: string; password: string }) => Promise<void>;
   register: (data: {

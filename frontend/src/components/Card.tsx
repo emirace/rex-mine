@@ -76,7 +76,7 @@ const Card: React.FC<CardProps> = ({
             <span className="opacity-80">Valid days:</span> {days}
           </div>{" "}
           <div className="">
-            <span className="opacity-80">Reward:</span> {percentage}%
+            <span className="opacity-80">Reward:</span> {percentage}% daily
           </div>
           <div className="">
             <span className="opacity-80">Payback Cycle:</span> {payback}

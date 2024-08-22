@@ -164,11 +164,45 @@ export const getUserById = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Return user details along with transactions and investments
+    // Get the total number of referrals made by the user
+    const totalReferrals = await User.countDocuments({ invitedBy: id });
+
+    // Calculate the total amount deposited by the user's referrals
+    const totalReferralDeposits = await Transaction.aggregate([
+      {
+        $match: {
+          userId: {
+            $in: (await User.find({ invitedBy: id }).select("_id")).map(
+              (user) => user._id
+            ),
+          },
+          type: "Deposit",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalDeposits: { $sum: "$amount" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalDeposits: 1,
+        },
+      },
+    ]);
+
+    // Return user details along with transactions, investments, referral count, and total referral deposits
     res.json({
       user,
       transactions,
       investments,
+      totalReferrals,
+      totalReferralDeposits:
+        totalReferralDeposits.length > 0
+          ? totalReferralDeposits[0].totalDeposits
+          : 0,
     });
   } catch (error) {
     console.error("Error fetching user details:", error);
@@ -397,7 +431,7 @@ export const getReferralBonuses = async (req: AuthRequest, res: Response) => {
         mergedUsers.set(user.username, user);
       } else {
         const existingUser = mergedUsers.get(user.username)!;
-        existingUser.level = Math.max(existingUser.level, user.level); // Keep the highest priority level
+        existingUser.level = user.level; // Keep the highest priority level
         if (user.bonusAmount !== undefined) {
           existingUser.bonusAmount = user.bonusAmount; // Update bonus amount if present
         }
@@ -416,10 +450,12 @@ export const getReferralBonuses = async (req: AuthRequest, res: Response) => {
     // Convert the map back to an array
     const allReferrals = Array.from(mergedUsers.values());
 
+    const limitedReferrals = allReferrals.slice(0, 15);
+
     // Return the combined array
     res.status(200).json({
       message: "Referral bonuses and levels fetched successfully",
-      referrals: allReferrals,
+      referrals: limitedReferrals,
     });
   } catch (error) {
     console.error("Error fetching referral bonuses:", error);

@@ -59,6 +59,8 @@ export const getUserById = async (
   user: User;
   transactions: Transaction[];
   investments: UserInvestment[];
+  totalReferrals: number;
+  totalReferralDeposits: number;
 }> => {
   try {
     const response = await api.get(`/users/${id}`);
