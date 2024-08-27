@@ -112,7 +112,7 @@ const Register: React.FC = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-900 to-indigo-900">
-      <div className="bg-[#1e203b] p-6 md:rounded-lg shadow-lg md:max-w-md h-screen md:h-auto w-full flex flex-col justify-center ">
+      <div className="bg-gradient-to-b bg-opacity-70 from-background to-blue-800 p-6 md:rounded-lg shadow-lg md:max-w-md h-screen md:h-auto w-full flex flex-col justify-center ">
         <h2 className="text-white text-2xl font-bold mb-6">Sign Up</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <TextInput
