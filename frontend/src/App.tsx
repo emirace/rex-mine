@@ -142,7 +142,7 @@ const App = () => {
 
       <footer className="bg-black min-h-[40vh] flex flex-col items-center font-montserrat">
         <p className="text-white text-lg md:text-2xl font-bold mt-10 mb-5 text-center">
-          Over 360K+ TRX has been invested with RexMine
+          Over 12Million TRX has been invested with RexMine
         </p>
         <button
           onClick={() => navigate(user ? "/home" : "/login")}
