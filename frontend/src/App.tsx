@@ -119,7 +119,7 @@ const App = () => {
         </div>
       </div>
       <Statistics />
-      <div className="w-full  p-16">
+      <div className="w-full  p-8 md:p-16">
         <div className="flex  items-center justify-between flex-wrap gap-4">
           <img
             src="/images/binance.png"

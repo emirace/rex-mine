@@ -108,7 +108,7 @@ const Login: React.FC = () => {
           />
           <div className="flex gap-5 items-center pb-6">
             <TextInput
-              placeholder="Enter CAPTCHA"
+              placeholder="Enter"
               type="text"
               onChange={(e) => setCaptchaInput(e.target.value)}
               value={captchaInput}

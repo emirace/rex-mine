@@ -21,7 +21,7 @@ function Mine() {
       <div className="flex items-center text-white font-medium min-h-14 mb-4 border border-white rounded-full p-2 ">
         <div
           onClick={() => setTab("List")}
-          className={`flex-1 text-center transition-all ${
+          className={`flex-1 text-center transition-all cursor-pointer ${
             tab === "List" && "bg-primary p-2 rounded-full "
           }`}
         >
@@ -29,7 +29,7 @@ function Mine() {
         </div>
         <div
           onClick={() => setTab("Status")}
-          className={`flex-1 text-center transition-all ${
+          className={`flex-1 text-center transition-all cursor-pointer ${
             tab === "Status" && "bg-primary p-2 rounded-full "
           }`}
         >
