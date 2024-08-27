@@ -27,7 +27,7 @@ const services = [
   {
     header: "Secure Your Earnings",
     description:
-      "Protect your mined TRX with our robust security protocols. Your earnings are stored safely, ensuring peace of mind as you grow your crypto portfolio.",
+      "Protect your mined TRX with our high security protocols. Your earnings are stored safely, ensuring peace of mind as you grow your crypto portfolio.",
     icon: (
       <FaShieldAlt className="text-primary text-6xl group-hover:text-white" />
     ),
@@ -101,7 +101,7 @@ const App = () => {
         </p>
 
         <p className="p-4 text-xs md:text-lg text-center w-full md:w-[60%]">
-          Available on any device, Rex-mine allows you to start Minig the most
+          Available on any device, Rex-mine allows you to start Mining the most
           popular and most capitalised coins with a multiplier of up to 200x
           Profit returns, And Also with the aim of bringing a great crypto asset
           to reality for better transaction and more profit to client.
