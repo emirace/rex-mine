@@ -13,8 +13,11 @@ function Navbar() {
         <Link to="/home" className="font-bold text-xl">
           <img src="/images/logo.png" alt="logo" className="w-12" />
         </Link>
-        <div className="capitalize text-white font-medium ">
-          Welcome {user?.username}
+        <div className="capitalize text-white font-medium flex items-start gap-1">
+          Welcome {user?.username}{" "}
+          <div className="bg-primary text-[10px] w-3 h-3 flex justify-center items-center rounded-full">
+            #
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <a

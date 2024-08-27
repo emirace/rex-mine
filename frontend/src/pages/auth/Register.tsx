@@ -173,7 +173,10 @@ const Register: React.FC = () => {
               onChange={() => setAgreeToTerms(!agreeToTerms)}
             />
             <label htmlFor="terms" className="text-white">
-              I agree to the terms & conditions
+              I agree to the{" "}
+              <Link to="/" className="underline">
+                terms & conditions
+              </Link>
             </label>
             {error.terms && (
               <div className="text-red-500 text-sm ml-2">{error.terms}</div>

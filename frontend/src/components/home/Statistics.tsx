@@ -76,7 +76,7 @@ function Statistics() {
             {renderCounter(12)}M+ TRX
           </div>
           <hr className="w-[10%]" />
-          <p className="py-4 capitalize">Innvestments</p>
+          <p className="py-4 capitalize">Investments</p>
         </div>
         <div className="flex flex-col items-center">
           <GoSmiley size={50} />
