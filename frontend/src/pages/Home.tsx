@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   const { user } = useUser();
   const { isClaimable } = useUserInvestment();
   const [hourlyRate, setHourlyRate] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getHourlyReturn();
