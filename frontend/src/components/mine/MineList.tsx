@@ -4,9 +4,11 @@ import Card from "../Card";
 import Modal from "../Modal";
 import TextInput from "../TextInput";
 import Button from "../Button";
+import { useUser } from "../../contexts/Auth";
 
 function MineList() {
   const { investmentLevels, create } = useInvestmentLevel();
+  const { user } = useUser();
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
@@ -45,12 +47,14 @@ function MineList() {
 
   return (
     <div className="">
-      {/* <Button
-        onClick={() => setShowModal(true)}
-        className="border border-primary text-primary mb-4"
-      >
-        Add Level
-      </Button> */}
+      {user?.role === "Admin" && (
+        <Button
+          onClick={() => setShowModal(true)}
+          className="border border-primary text-primary mb-4"
+        >
+          Add Level
+        </Button>
+      )}
       <div className="flex flex-col gap-6">
         {investmentLevels.map((level) => (
           <Card
