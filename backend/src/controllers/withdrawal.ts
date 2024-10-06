@@ -20,6 +20,12 @@ export const createWithdrawalRequest = async (
   session.startTransaction();
 
   try {
+    if (amount < 4) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "Enter a valid amount" });
+    }
+
     // Find the user making the withdrawal
     const user = await User.findById(userId).session(session);
     if (!user) {
@@ -32,6 +38,26 @@ export const createWithdrawalRequest = async (
     const isMatch = await bcrypt.compare(code, user.transactionCode!);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid transaction code" });
+    }
+
+    // Check if the user has created a withdrawal in the past 24 hours
+    const lastWithdrawal = await Withdrawal.findOne({ userId }).sort({
+      createdAt: -1,
+    });
+    if (lastWithdrawal) {
+      const now = new Date();
+      const lastRequestTime = new Date(lastWithdrawal.createdAt);
+      const hoursSinceLastRequest =
+        (now.getTime() - lastRequestTime.getTime()) / (1000 * 60 * 60);
+
+      if (hoursSinceLastRequest < 24) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({
+          message:
+            "You can only create a withdrawal request once every 24 hours.",
+        });
+      }
     }
 
     // Calculate total available for withdrawal (miningBalance + promotionalBalance)
@@ -114,30 +140,61 @@ export const getAllWithdrawalRequests = async (req: Request, res: Response) => {
 
 // Update withdrawal request status
 export const updateWithdrawalStatus = async (req: Request, res: Response) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
     const { status } = req.body; // "Approved" or "Rejected"
 
-    const withdrawal = await Withdrawal.findById(id);
+    const withdrawal = await Withdrawal.findById(id).session(session);
     if (!withdrawal) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ message: "Withdrawal request not found" });
     }
 
-    const transcation = await Transaction.findById(withdrawal.transactionId);
-    if (!transcation) {
-      return res.status(404).json({ message: "Transactions not found" });
+    const transaction = await Transaction.findById(
+      withdrawal.transactionId
+    ).session(session);
+    if (!transaction) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "Transaction not found" });
     }
-    transcation.status = status === "Approved" ? "Completed" : "Failed";
-    await transcation.save();
 
+    const user = await User.findById(withdrawal.userId).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update transaction status
+    transaction.status = status === "Approved" ? "Completed" : "Failed";
+    await transaction.save({ session });
+
+    // If withdrawal is rejected, credit the user back
+    if (status === "Rejected") {
+      user.balance = withdrawal.amount;
+      // Save User
+      await user.save({ session });
+    }
+
+    // Update withdrawal status
     withdrawal.status = status;
-    await withdrawal.save();
+    await withdrawal.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     res.json({
       message: `Withdrawal request ${status.toLowerCase()} successfully`,
       withdrawal,
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     console.error("Error updating withdrawal request status:", error);
     res.status(500).json({ error: "Error updating withdrawal request status" });
   }
