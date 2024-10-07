@@ -50,7 +50,7 @@ const App = () => {
       <div className="relative flex flex-col justify-center min-h-screen bg-hero-pattern bg-cover bg-center text-white px-6">
         {/* Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-70"></div>
-        {/* Content */}
+        
         <Link to="/" className="font-bold z-10 absolute top-5 left-5 text-xl">
           <img src="/images/logo.png" alt="logo" className="w-12" />
         </Link>
