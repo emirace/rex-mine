@@ -20,7 +20,7 @@ const WithdrawalRequest: React.FC = () => {
   const validation = () => {
     const amountValue = parseFloat(amount);
 
-    if (amountValue <= 0) {
+    if (amountValue <= 4) {
       setErrorMessage("Please enter a valid amount.");
       return;
     }
@@ -132,6 +132,7 @@ const WithdrawalRequest: React.FC = () => {
           </p>
           <ul className="list-disc list-inside space-y-1">
             <li>Withdrawal amount is from 4TRX - 20millionTRX.</li>
+            <li>You can only make a withdrawal request a day.</li>
             <li>Withdrawal may take up to 10 minutes to arrive.</li>
             <li>5% fee is charge for withdrrawal</li>
             <li>Do not use any address other than trc20 network</li>
