@@ -131,7 +131,7 @@ const WithdrawalRequest: React.FC = () => {
             Important Information:
           </p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Withdrawal amount is from 0.1TRX - 20millionTRX.</li>
+            <li>Withdrawal amount is from 4TRX - 20millionTRX.</li>
             <li>Withdrawal may take up to 10 minutes to arrive.</li>
             <li>5% fee is charge for withdrrawal</li>
             <li>Do not use any address other than trc20 network</li>
