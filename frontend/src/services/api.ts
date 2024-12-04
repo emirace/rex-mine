@@ -5,6 +5,7 @@ import axios from "axios";
 // const API_URL = "https://rex-mine.onrender.com/api";
 const API_URL = "https://rex-mine.onrender.com/api";
 // const API_URL = "https://rexmine.rkingsexchange.com/api";
+// const API_URL = "https://rexmine.rkingsexchange.com/api";
 
 // Create an Axios instance
 const api = axios.create({
